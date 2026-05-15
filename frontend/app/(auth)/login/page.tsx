@@ -27,16 +27,17 @@ export default function LoginPage() {
     setIsLoading(true);
 
     try {
-      const result = await signIn.email({ email, password });
+      const result = await signIn.email({ email, password, callbackURL: "/" });
       if (result.error) {
         setError(result.error.message || "Identifiants incorrects");
-      } else {
+        setIsLoading(false);
+      }
+      // Fallback si callbackURL n'a pas déclenché la navigation automatique
+      else if (!result.data?.redirect) {
         router.push("/");
-        router.refresh();
       }
     } catch {
       setError("Une erreur est survenue");
-    } finally {
       setIsLoading(false);
     }
   };
