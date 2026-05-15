@@ -1,6 +1,17 @@
-import "dotenv/config";
-import { prisma } from "./lib/prisma.js";
-import { auth } from "./auth.js";
+import { config } from "dotenv";
+import { fileURLToPath } from "url";
+import { dirname, join, resolve } from "path";
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const envPath = resolve(join(__dirname, "../.env"));
+
+// Load environment variables BEFORE any other imports
+config({ path: envPath });
+
+// Now import the modules that depend on environment variables
+const { prisma } = await import("./lib/prisma.js");
+const { auth } = await import("./auth.js");
+// auth is now imported dynamically above
 
 // ---------------------------------------------------------------------------
 // Seeded LCG PRNG — deterministic output for every run
@@ -191,26 +202,20 @@ async function main(): Promise<void> {
   // Produits
   // ---------------------------------------------------------------------------
   console.log("🌾 Creating produits...");
-  const produits = await prisma.$transaction(
-    PRODUITS.map((p) =>
-      prisma.produit.create({
-        data: { nom: p.nom, categorie: p.categorie, prixUnitaire: p.prixUnitaire },
-      })
-    )
-  );
+  await prisma.produit.createMany({
+    data: PRODUITS.map((p) => ({ nom: p.nom, categorie: p.categorie, prixUnitaire: p.prixUnitaire })),
+  });
+  const produits = await prisma.produit.findMany();
   console.log(`   ✓ ${produits.length} produits`);
 
   // ---------------------------------------------------------------------------
   // Clients
   // ---------------------------------------------------------------------------
   console.log("👤 Creating clients...");
-  const clients = await prisma.$transaction(
-    CLIENTS.map((c) =>
-      prisma.client.create({
-        data: { nom: c.nom, prenom: c.prenom, ville: c.ville },
-      })
-    )
-  );
+  await prisma.client.createMany({
+    data: CLIENTS.map((c) => ({ nom: c.nom, prenom: c.prenom, ville: c.ville })),
+  });
+  const clients = await prisma.client.findMany();
   console.log(`   ✓ ${clients.length} clients`);
 
   // ---------------------------------------------------------------------------
@@ -266,6 +271,7 @@ async function main(): Promise<void> {
   console.log(`   Produits: ${produits.length}`);
   console.log(`   Clients : ${clients.length}`);
   console.log(`   Ventes  : ${allVentes.length}`);
+  console.log(`   Total   : ${USERS.length + produits.length + clients.length + allVentes.length} records`);
 }
 
 main()
