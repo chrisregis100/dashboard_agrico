@@ -1,4 +1,5 @@
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001";
+// Same-origin requests; Next.js rewrites proxy /api/* to the backend.
+const API_BASE_URL = "";
 
 export async function apiFetch<T>(
   path: string,

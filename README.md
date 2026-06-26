@@ -62,8 +62,8 @@ Le dashboard centralise :
 
 | Flux | Mécanisme |
 |------|-----------|
-| Authentification | Cookies HTTP-only (`better-auth.session_token`), rewrite Next.js `/api/auth/*` → backend |
-| Données métier | Requêtes `fetch` directes du frontend vers `NEXT_PUBLIC_API_URL` avec `credentials: "include"` |
+| Authentification | Cookies HTTP-only (`better-auth.session_token`), rewrite Next.js `/api/*` → backend |
+| Données métier | Requêtes `fetch` same-origin (`/api/*`) proxifiées vers le backend avec `credentials: "include"` |
 | CORS | Configuré côté backend, autorise `FRONTEND_URL` |
 
 ---
@@ -128,7 +128,7 @@ Créer un fichier `.env` (ou `.env.local`) dans chaque dossier.
 |----------|-------------|
 | `DATABASE_URL` | URL de connexion PostgreSQL (ex. `postgresql://user:pass@host:5432/db`) |
 | `BETTER_AUTH_SECRET` | Clé secrète pour la signature des tokens Better Auth |
-| `BETTER_AUTH_URL` | URL publique du backend (ex. `http://localhost:4000`) |
+| `BETTER_AUTH_URL` | URL publique du **frontend** (ex. `https://app.vercel.app`) — requis car l'auth est proxifiée via Next.js |
 | `FRONTEND_URL` | URL du frontend autorisée par CORS (ex. `http://localhost:3000`) |
 | `PORT` | Port d'écoute du serveur (défaut : `4000`) |
 | `NODE_ENV` | Environnement (`development` ou `production`) |
@@ -257,7 +257,7 @@ Le fichier [`render.yaml`](./render.yaml) à la racine configure le déploiement
 
 - **Build** : `npm install --include=dev && npx prisma generate && npm run build`
 - **Start** : `node dist/index.js`
-- **Variables** à définir dans Render : `DATABASE_URL`, `FRONTEND_URL`, `BETTER_AUTH_SECRET`
+- **Variables** à définir dans Render : `DATABASE_URL`, `FRONTEND_URL`, `BETTER_AUTH_URL` (URL du frontend Vercel), `BETTER_AUTH_SECRET`
 
 ### Frontend — Vercel
 

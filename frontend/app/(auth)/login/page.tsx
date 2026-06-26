@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { signIn } from "@/lib/auth-client";
 import { Button } from "@/components/ui/button";
 import {
@@ -15,7 +14,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
 export default function LoginPage() {
-  const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -31,11 +29,11 @@ export default function LoginPage() {
       if (result.error) {
         setError(result.error.message || "Identifiants incorrects");
         setIsLoading(false);
+        return;
       }
-      // Fallback si callbackURL n'a pas déclenché la navigation automatique
-      else if (!result.data?.redirect) {
-        router.push("/");
-      }
+
+      // Full navigation ensures the session cookie is sent on the next request.
+      window.location.href = "/";
     } catch {
       setError("Une erreur est survenue");
       setIsLoading(false);
