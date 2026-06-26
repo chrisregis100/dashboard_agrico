@@ -2,6 +2,10 @@ export interface SalesSummary {
   caTotal: number;
   nbVentes: number;
   produitTopName: string;
+  vendeurTopName: string;
+  vendeurTopCa: number;
+  villeTopName: string;
+  villeTopCa: number;
   trendVsPrevMonth: number;
 }
 

@@ -32,12 +32,12 @@ export function MonthYearFilter() {
   const [year, setYear] = useQueryState("year", parseAsInteger);
 
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex w-full flex-wrap items-center gap-2 sm:w-auto">
       <Select
         value={month?.toString() ?? ""}
         onValueChange={(val) => setMonth(val && val !== "all" ? parseInt(val) : null)}
       >
-        <SelectTrigger className="w-[140px]">
+        <SelectTrigger className="w-full min-w-0 flex-1 sm:w-[140px] sm:flex-none">
           <SelectValue placeholder="Mois" />
         </SelectTrigger>
         <SelectContent>
@@ -54,7 +54,7 @@ export function MonthYearFilter() {
         value={year?.toString() ?? ""}
         onValueChange={(val) => setYear(val ? parseInt(val) : null)}
       >
-        <SelectTrigger className="w-[100px]">
+        <SelectTrigger className="w-full min-w-0 flex-1 sm:w-[100px] sm:flex-none">
           <SelectValue placeholder="Année" />
         </SelectTrigger>
         <SelectContent>

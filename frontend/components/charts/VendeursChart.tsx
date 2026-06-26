@@ -59,7 +59,7 @@ export function VendeursChart({ data, isLoading }: VendeursChartProps) {
         <CardTitle>Performance vendeurs</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="h-[250px]">
+        <div className="h-[220px] sm:h-[250px]">
           <Bar data={chartData} options={options} />
         </div>
       </CardContent>

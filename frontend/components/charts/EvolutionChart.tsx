@@ -88,7 +88,7 @@ export function EvolutionChart({ data, isLoading }: EvolutionChartProps) {
         <CardTitle>Évolution du CA (24 mois)</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="h-[300px]">
+        <div className="h-[220px] sm:h-[250px] md:h-[300px]">
           <Line data={chartData} options={options} />
         </div>
       </CardContent>
