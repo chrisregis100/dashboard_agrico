@@ -3,6 +3,8 @@ import { prismaAdapter } from "better-auth/adapters/prisma";
 import { prisma } from "./lib/prisma.js";
 
 export const auth = betterAuth({
+  // When auth is proxied through the frontend, this must be the public frontend URL.
+  baseURL: process.env.BETTER_AUTH_URL ?? process.env.FRONTEND_URL,
   database: prismaAdapter(prisma, { provider: "postgresql" }),
   emailAndPassword: { enabled: true, autoSignIn: true },
   user: {
@@ -18,7 +20,7 @@ export const auth = betterAuth({
   trustedOrigins: [process.env.FRONTEND_URL!],
   advanced: {
     defaultCookieAttributes: {
-      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+      sameSite: "lax",
       secure: process.env.NODE_ENV === "production",
       httpOnly: true,
     },

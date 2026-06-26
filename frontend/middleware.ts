@@ -1,16 +1,25 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { getSessionCookie } from "better-auth/cookies";
 
 export function middleware(request: NextRequest) {
-  const sessionCookie = request.cookies.get("better-auth.session_token");
+  // RSC/prefetch requests in production often omit cookies; skip auth checks.
+  if (
+    request.headers.get("next-router-prefetch") === "1" ||
+    request.headers.get("rsc") === "1"
+  ) {
+    return NextResponse.next();
+  }
+
+  const sessionToken = getSessionCookie(request.headers);
 
   const isAuthPage = request.nextUrl.pathname.startsWith("/login");
 
-  if (!sessionCookie && !isAuthPage) {
+  if (!sessionToken && !isAuthPage) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
 
-  if (sessionCookie && isAuthPage) {
+  if (sessionToken && isAuthPage) {
     return NextResponse.redirect(new URL("/", request.url));
   }
 
