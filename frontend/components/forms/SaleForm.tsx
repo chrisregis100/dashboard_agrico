@@ -61,7 +61,11 @@ export function SaleForm() {
   });
 
   const selectedProduitId = watch("produitId");
+  const selectedClientId = watch("clientId");
   const quantite = watch("quantite");
+
+  const selectedProduit = produits?.find((p) => p.id === selectedProduitId);
+  const selectedClient = clients?.find((c) => c.id === selectedClientId);
 
   useEffect(() => {
     if (selectedProduitId && quantite > 0 && produits) {
@@ -112,13 +116,15 @@ export function SaleForm() {
               value={selectedProduitId}
               onValueChange={(val) => setValue("produitId", val ?? "")}
             >
-              <SelectTrigger id="produitId">
-                <SelectValue placeholder="Sélectionner un produit" />
+              <SelectTrigger id="produitId" className="w-full">
+                <SelectValue placeholder="Sélectionner un produit">
+                  {selectedProduit?.nom}
+                </SelectValue>
               </SelectTrigger>
               <SelectContent>
                 {produits?.map((p) => (
                   <SelectItem key={p.id} value={p.id}>
-                    {p.nom} — {p.prixUnitaire.toLocaleString("fr-FR")} FCFA/unité
+                    {p.nom}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -133,11 +139,15 @@ export function SaleForm() {
           <div className="space-y-2">
             <Label htmlFor="clientId">Client</Label>
             <Select
-              value={watch("clientId")}
+              value={selectedClientId}
               onValueChange={(val) => setValue("clientId", val ?? "")}
             >
-              <SelectTrigger id="clientId">
-                <SelectValue placeholder="Sélectionner un client" />
+              <SelectTrigger id="clientId" className="w-full">
+                <SelectValue placeholder="Sélectionner un client">
+                  {selectedClient
+                    ? `${selectedClient.prenom} ${selectedClient.nom} — ${selectedClient.ville}`
+                    : null}
+                </SelectValue>
               </SelectTrigger>
               <SelectContent>
                 {clients?.map((c) => (
