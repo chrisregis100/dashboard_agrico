@@ -25,6 +25,15 @@ const options: ChartOptions<"bar"> = {
   responsive: true,
   maintainAspectRatio: false,
   plugins: { legend: { display: false } },
+  scales: {
+    x: {
+      ticks: {
+        maxRotation: 45,
+        minRotation: 0,
+        autoSkip: true,
+      },
+    },
+  },
 };
 
 export function VillesChart({ data, isLoading }: VillesChartProps) {
@@ -59,7 +68,7 @@ export function VillesChart({ data, isLoading }: VillesChartProps) {
         <CardTitle>Ventes par ville</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="h-[250px]">
+        <div className="h-[220px] sm:h-[250px]">
           <Bar data={chartData} options={options} />
         </div>
       </CardContent>

@@ -38,31 +38,35 @@ export function RecentSalesTable({ data, isLoading }: RecentSalesTableProps) {
       <CardHeader>
         <CardTitle>Dernières ventes</CardTitle>
       </CardHeader>
-      <CardContent>
+      <CardContent className="overflow-x-auto">
         <Table>
           <TableHeader>
             <TableRow>
               <TableHead>Date</TableHead>
               <TableHead>Produit</TableHead>
-              <TableHead>Client</TableHead>
-              <TableHead>Vendeur</TableHead>
-              <TableHead className="text-right">Quantité</TableHead>
+              <TableHead className="hidden sm:table-cell">Client</TableHead>
+              <TableHead className="hidden md:table-cell">Vendeur</TableHead>
+              <TableHead className="text-right">Qté</TableHead>
               <TableHead className="text-right">Montant</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {data?.map((vente) => (
               <TableRow key={vente.id}>
-                <TableCell>
+                <TableCell className="whitespace-nowrap">
                   {new Date(vente.dateVente).toLocaleDateString("fr-FR")}
                 </TableCell>
-                <TableCell>{vente.produit.nom}</TableCell>
-                <TableCell>
+                <TableCell className="max-w-[120px] truncate sm:max-w-none">
+                  {vente.produit.nom}
+                </TableCell>
+                <TableCell className="hidden sm:table-cell">
                   {vente.client.prenom} {vente.client.nom}
                 </TableCell>
-                <TableCell>{vente.vendeur.name}</TableCell>
+                <TableCell className="hidden md:table-cell">
+                  {vente.vendeur.name}
+                </TableCell>
                 <TableCell className="text-right">{vente.quantite}</TableCell>
-                <TableCell className="text-right">
+                <TableCell className="whitespace-nowrap text-right">
                   {vente.montantTotal.toLocaleString("fr-FR")} FCFA
                 </TableCell>
               </TableRow>

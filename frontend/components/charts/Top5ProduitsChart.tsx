@@ -66,7 +66,7 @@ export function Top5ProduitsChart({ data, isLoading }: Top5ProduitsChartProps) {
         <CardTitle>Top 5 Produits</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="h-[300px]">
+        <div className="h-[220px] sm:h-[250px] md:h-[300px]">
           <Bar data={chartData} options={options} />
         </div>
       </CardContent>

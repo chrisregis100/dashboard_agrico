@@ -33,18 +33,33 @@ router.get("/summary", requireSession, async (req, res) => {
       prevWhere = { dateVente: { gte: new Date(y - 1, 0, 1), lt: new Date(y, 0, 1) } };
     }
 
-    const [currentAgg, prevAgg, nbVentes, topProduit] = await Promise.all([
-      prisma.vente.aggregate({ where, _sum: { montantTotal: true } }),
-      prisma.vente.aggregate({ where: prevWhere, _sum: { montantTotal: true } }),
-      prisma.vente.count({ where }),
-      prisma.vente.groupBy({
-        by: ["produitId"],
-        where,
-        _sum: { quantite: true },
-        orderBy: { _sum: { quantite: "desc" } },
-        take: 1,
-      }),
-    ]);
+    const [currentAgg, prevAgg, nbVentes, topProduit, topVendeur, ventesAvecVille] =
+      await Promise.all([
+        prisma.vente.aggregate({ where, _sum: { montantTotal: true } }),
+        prisma.vente.aggregate({ where: prevWhere, _sum: { montantTotal: true } }),
+        prisma.vente.count({ where }),
+        prisma.vente.groupBy({
+          by: ["produitId"],
+          where,
+          _sum: { quantite: true },
+          orderBy: { _sum: { quantite: "desc" } },
+          take: 1,
+        }),
+        prisma.vente.groupBy({
+          by: ["vendeurId"],
+          where,
+          _sum: { montantTotal: true },
+          orderBy: { _sum: { montantTotal: "desc" } },
+          take: 1,
+        }),
+        prisma.vente.findMany({
+          where,
+          select: {
+            montantTotal: true,
+            client: { select: { ville: true } },
+          },
+        }),
+      ]);
 
     const caTotal = currentAgg._sum.montantTotal ?? 0;
     const caPrev = prevAgg._sum.montantTotal ?? 0;
@@ -59,10 +74,34 @@ router.get("/summary", requireSession, async (req, res) => {
       produitTopName = produit?.nom ?? "N/A";
     }
 
+    let vendeurTopName = "N/A";
+    let vendeurTopCa = 0;
+    if (topVendeur.length > 0) {
+      const vendeur = await prisma.user.findUnique({
+        where: { id: topVendeur[0].vendeurId },
+        select: { name: true },
+      });
+      vendeurTopName = vendeur?.name ?? "N/A";
+      vendeurTopCa = topVendeur[0]._sum.montantTotal ?? 0;
+    }
+
+    const villeCa: Record<string, number> = {};
+    for (const vente of ventesAvecVille) {
+      const { ville } = vente.client;
+      villeCa[ville] = (villeCa[ville] ?? 0) + vente.montantTotal;
+    }
+    const topVilleEntry = Object.entries(villeCa).sort((a, b) => b[1] - a[1])[0];
+    const villeTopName = topVilleEntry?.[0] ?? "N/A";
+    const villeTopCa = topVilleEntry?.[1] ?? 0;
+
     res.json({
       caTotal,
       nbVentes,
       produitTopName,
+      vendeurTopName,
+      vendeurTopCa,
+      villeTopName,
+      villeTopCa,
       trendVsPrevMonth: Math.round(trendVsPrevMonth * 100) / 100,
     });
   } catch (error) {
