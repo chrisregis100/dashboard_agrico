@@ -1,0 +1,1925 @@
+% !TeX program = pdflatex
+% =============================================================================
+%  Rapport de stage - Licence 3 MIA - Groupe 29
+%  « Tableau de bord web pour l'analyse des ventes agricoles »
+%
+%  Version académique enrichie : intègre l'ensemble des corrections de fond et
+%  de forme demandées (introduction générale distincte, état de l'art et cadre
+%  théorique, méthodologie explicite, hypothèses testables, discussion critique
+%  et mesures de performance, apport personnel, glossaire, citations IEEE dans
+%  le corps du texte, diagramme d'architecture vectoriel) ainsi que les 28
+%  corrections orthographiques, grammaticales et typographiques relevées.
+%  Compilation : pdflatex rapport.tex (x2 pour la table des matières)
+%  ou : latexmk -pdf rapport.tex
+% =============================================================================
+\documentclass[11pt,a4paper]{report}
+
+% ---- Encodage et langue -----------------------------------------------------
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[french]{babel}
+
+% ---- Mise en page -----------------------------------------------------------
+\usepackage[a4paper,margin=2.5cm]{geometry}
+\usepackage{setspace}
+\onehalfspacing
+\usepackage{microtype}
+
+% ---- Tableaux ---------------------------------------------------------------
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{array}
+\usepackage{longtable}
+\usepackage{ragged2e}
+
+% ---- Graphiques et couleurs -------------------------------------------------
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{float}
+
+% ---- Symboles mathématiques -------------------------------------------------
+\usepackage{amssymb}
+
+% ---- Diagrammes vectoriels --------------------------------------------------
+\usepackage{tikz}
+\usetikzlibrary{positioning,arrows.meta,shapes.geometric,fit,backgrounds,calc}
+
+% ---- Code source ------------------------------------------------------------
+\usepackage{listings}
+\usepackage{upquote}  % apostrophes droites et accents graves (backticks) fidèles
+\usepackage{url}
+\usepackage{enumitem}
+
+% ---- Liens ------------------------------------------------------------------
+\usepackage[hidelinks]{hyperref}
+\hypersetup{
+  pdftitle={Tableau de bord web pour l'analyse des ventes agricoles},
+  pdfauthor={Groupe 29 - Licence 3 MIA - FAST, Université d'Abomey-Calavi},
+  pdfsubject={Rapport de stage - Session de Juin 2026}
+}
+
+% ---- Légendes (séparateur tiret demi-cadratin, « Tableau » en français) -----
+\usepackage{caption}
+\captionsetup{labelsep=endash}
+\addto\captionsfrench{\renewcommand{\tablename}{Tableau}}
+
+% ---- Couleurs du thème code -------------------------------------------------
+\definecolor{codebg}{RGB}{247,248,250}
+\definecolor{codeframe}{RGB}{220,223,228}
+\definecolor{codekw}{RGB}{170,13,145}
+\definecolor{codestr}{RGB}{196,26,22}
+\definecolor{codecom}{RGB}{113,140,153}
+\definecolor{codenum}{RGB}{150,152,154}
+
+% ---- Style des listings (avec support des accents UTF-8) --------------------
+\lstset{
+  basicstyle=\ttfamily\footnotesize,
+  backgroundcolor=\color{codebg},
+  frame=single,
+  rulecolor=\color{codeframe},
+  numbers=left,
+  numberstyle=\ttfamily\scriptsize\color{codenum},
+  numbersep=8pt,
+  keywordstyle=\color{codekw}\bfseries,
+  stringstyle=\color{codestr},
+  commentstyle=\color{codecom}\itshape,
+  showstringspaces=false,
+  breaklines=true,
+  breakatwhitespace=false,
+  tabsize=2,
+  captionpos=b,
+  aboveskip=1.2em,
+  belowskip=1em,
+  columns=fullflexible,
+  keepspaces=true,
+  extendedchars=true,
+  inputencoding=utf8,
+  literate=
+    {é}{{\'e}}1 {è}{{\`e}}1 {ê}{{\^e}}1 {ë}{{\"e}}1
+    {à}{{\`a}}1 {â}{{\^a}}1 {ä}{{\"a}}1
+    {ù}{{\`u}}1 {û}{{\^u}}1 {ü}{{\"u}}1
+    {ô}{{\^o}}1 {ö}{{\"o}}1
+    {î}{{\^i}}1 {ï}{{\"i}}1
+    {ç}{{\c c}}1
+    {É}{{\'E}}1 {È}{{\`E}}1 {Ê}{{\^E}}1 {À}{{\`A}}1 {Ç}{{\c C}}1
+    {œ}{{\oe}}1 {Œ}{{\OE}}1
+    {«}{{\guillemotleft{}}}1 {»}{{\guillemotright{}}}1
+    {’}{{'}}1 {‘}{{'}}1
+}
+
+% Nom francophone pour les listings
+\renewcommand{\lstlistingname}{Listing}
+\renewcommand{\lstlistlistingname}{Liste des listings}
+
+% ---- Commande pour les figures non fournies (aperçus) -----------------------
+\newcommand{\apercu}[1]{%
+  \begin{center}
+  \setlength{\fboxsep}{10pt}%
+  \fcolorbox{codeframe}{codebg}{%
+    \begin{minipage}[c][0.30\textheight][c]{0.85\textwidth}
+      \centering\itshape\color{codecom}#1
+    \end{minipage}}%
+  \end{center}}
+
+% =============================================================================
+\begin{document}
+
+% -------------------------------- PAGE DE GARDE ------------------------------
+\begin{titlepage}
+\centering
+{\normalsize
+MINISTÈRE DE L'ENSEIGNEMENT SUPÉRIEUR ET\\
+DE LA RECHERCHE SCIENTIFIQUE\par}
+\vspace{0.6cm}
+{\normalsize
+UNIVERSITÉ D'ABOMEY-CALAVI\\
+FACULTÉ DES SCIENCES ET TECHNIQUES (FAST)\\
+Département Mathématiques, Informatique et Applications\par}
+\vspace{0.4cm}
+{\normalsize Licence 3 -- MIA -- Semestre 6\\
+Année académique 2025--2026\par}
+
+\vspace{1.8cm}
+\rule{\linewidth}{0.5pt}\\[0.6cm]
+{\huge\bfseries Tableau de bord web pour\\[0.2cm]
+l'analyse des ventes agricoles\par}
+\vspace{0.5cm}
+\rule{\linewidth}{0.5pt}
+
+\vspace{1.6cm}
+{\large\textbf{Groupe : 29}\par}
+\vspace{0.5cm}
+{\large
+\textbf{Membres :}\\[0.2cm]
+Bignon Igor Eunérih DADE\\
+Marie Ange Helena Andrea DJEGUEDE\\
+Azondokindé Dieudonné Jules KAKPO\\
+Aina René Régis KIKI\par}
+
+\vspace{1.2cm}
+{\large\textbf{Tuteur :} Dr Abdou Wahidi BELLO\par}
+\vspace{0.4cm}
+{\large\textbf{Période :} Du 20 avril 2026 au 12 juin 2026\par}
+
+\vfill
+{\large Rapport de stage -- Session de Juin 2026\par}
+\end{titlepage}
+
+\pagenumbering{roman}
+
+% -------------------------------- REMERCIEMENTS ------------------------------
+\chapter*{Remerciements}
+\addcontentsline{toc}{chapter}{Remerciements}
+
+Nous tenons à exprimer notre sincère gratitude à toutes les personnes qui ont
+contribué au bon déroulement de ce stage et à la réalisation de ce projet.
+
+Nous remercions tout d'abord notre tuteur, le Dr Abdou Wahidi Bello, pour son
+encadrement, ses orientations méthodologiques et sa disponibilité tout au long
+de la période de stage.
+
+Nous adressons également nos remerciements à l'ensemble du corps enseignant du
+département de Mathématiques, Informatique et Applications de la Faculté des
+Sciences et Techniques de l'Université d'Abomey-Calavi, pour la qualité de la
+formation dispensée en Licence 3 MIA.
+
+Enfin, nous remercions nos familles et proches pour leur soutien constant.
+
+% -------------------------------- RÉSUMÉ ------------------------------------
+\chapter*{Résumé}
+\addcontentsline{toc}{chapter}{Résumé}
+
+Le présent rapport rend compte du travail réalisé dans le cadre du stage de fin
+de semestre en Licence 3 MIA à la Faculté des Sciences et Techniques de
+l'Université d'Abomey-Calavi. Le sujet porte sur la conception et la réalisation
+d'un tableau de bord web destiné à l'analyse des ventes de produits agricoles au
+Bénin.
+
+La solution développée repose sur une architecture client-serveur à trois
+couches : un frontend construit avec Next.js~16 et React~19, un backend API
+développé avec Express~5 et une base de données PostgreSQL hébergée sur Neon.
+L'authentification est gérée par Better Auth avec un système de témoins de
+connexion (\emph{cookies}) HTTP-only sécurisés. Le schéma de données comprend
+sept modèles dont quatre entités métier (Produit, Client, Vente, User) et trois
+entités d'authentification (Session, Account, Verification).
+
+L'application offre un tableau de bord interactif avec des indicateurs clés de
+performance (chiffre d'affaires, nombre de ventes, produit vedette, tendance
+mensuelle), des graphiques d'évolution temporelle sur 24~mois, un classement des
+produits et des villes, ainsi qu'un formulaire de saisie de nouvelles ventes. La
+visualisation des données est assurée par Chart.js. Le jeu de données de
+démonstration comprend 604~ventes réparties sur 24~mois, 40~clients dans
+6~villes, 10~produits agricoles et 5~utilisateurs. L'application est déployée sur
+Vercel (frontend), Render (backend) et Neon (base de données).
+
+\vspace{0.4cm}
+\noindent\textbf{Mots-clés :} tableau de bord décisionnel, informatique
+décisionnelle (\emph{Business Intelligence}), indicateurs clés de performance,
+visualisation de données, ventes agricoles, Next.js, Express, PostgreSQL,
+Prisma, Chart.js.
+
+% -------------------------------- ABSTRACT ----------------------------------
+\chapter*{Abstract}
+\addcontentsline{toc}{chapter}{Abstract}
+
+This report presents the design and implementation of a web dashboard for
+analysing agricultural sales in Benin, carried out during the end-of-semester
+internship of the third-year Bachelor's degree in Mathematics, Computer Science
+and Applications at the Faculty of Sciences and Techniques of the University of
+Abomey-Calavi. The solution follows a three-tier client-server architecture: a
+Next.js~16 and React~19 frontend, an Express~5 REST API and a PostgreSQL
+database hosted on Neon. It provides key performance indicators, interactive
+charts, a geographic and product-based breakdown and a sales entry form. The
+work is positioned within the field of Business Intelligence and interactive
+data visualisation, and it is evaluated against measurable objectives through
+functional testing and response-time measurements.
+
+\vspace{0.4cm}
+\noindent\textbf{Keywords:} decision-support dashboard, Business Intelligence,
+key performance indicators, data visualisation, agricultural sales, web
+application.
+
+% -------------------------------- GLOSSAIRE ---------------------------------
+\chapter*{Glossaire et liste des acronymes}
+\addcontentsline{toc}{chapter}{Glossaire et liste des acronymes}
+
+Ce glossaire regroupe les principaux termes techniques et acronymes employés
+dans le rapport. Les anglicismes conservés faute d'équivalent français répandu
+sont signalés en \emph{italique} et explicités ci-dessous.
+
+\begin{description}[style=nextline,leftmargin=0.5cm,font=\normalfont\bfseries]
+  \item[API (\emph{Application Programming Interface})] Interface de
+        programmation applicative ; ensemble de points d'accès exposés par le
+        serveur pour échanger des données avec le client.
+  \item[BI (\emph{Business Intelligence})] Informatique décisionnelle ;
+        ensemble des méthodes et outils de collecte, de consolidation et de
+        restitution des données destinés à éclairer la décision.
+  \item[Cookie (témoin de connexion)] Petit fichier déposé par le serveur dans
+        le navigateur pour maintenir l'état d'une session.
+  \item[CORS (\emph{Cross-Origin Resource Sharing})] Mécanisme de partage de
+        ressources entre origines différentes, contrôlé par le navigateur.
+  \item[Framework (cadriciel)] Cadre logiciel fournissant une structure et des
+        composants réutilisables pour le développement d'applications.
+  \item[Hydratation (\emph{hydration})] Processus par lequel le navigateur
+        rend interactif un contenu initialement produit par le serveur.
+  \item[KPI (\emph{Key Performance Indicator})] Indicateur clé de performance ;
+        mesure synthétique de l'atteinte d'un objectif.
+  \item[MCD / MLD] Modèle conceptuel / logique de données ; représentations
+        successives de la structure des données lors de la conception.
+  \item[ORM (\emph{Object-Relational Mapping})] Correspondance objet-relationnel
+        permettant de manipuler la base au moyen d'objets typés.
+  \item[REST (\emph{Representational State Transfer})] Style d'architecture des
+        interfaces web fondé sur les ressources et les méthodes HTTP.
+  \item[RSC (\emph{React Server Components})] Composants React rendus côté
+        serveur, sans envoi de code JavaScript au client.
+  \item[SGBD] Système de gestion de base de données.
+\end{description}
+
+% -------------------------------- SOMMAIRE ----------------------------------
+\tableofcontents
+\listoffigures
+\listoftables
+
+% =============================================================================
+\cleardoublepage
+\pagenumbering{arabic}
+
+% =============================================================================
+\chapter*{Introduction générale}
+\addcontentsline{toc}{chapter}{Introduction générale}
+\markboth{INTRODUCTION GÉNÉRALE}{}
+
+L'essor des technologies numériques a profondément transformé la manière dont
+les organisations exploitent leurs données pour décider. Dans les pays en
+développement, et singulièrement dans le secteur agricole béninois, cette
+transformation demeure toutefois inégale : les données de vente existent, mais
+restent le plus souvent dispersées, non consolidées et faiblement valorisées à
+des fins d'analyse~\cite{fao2021digital,worldbank2020}. L'informatique
+décisionnelle (\emph{Business Intelligence}, BI) et la visualisation
+interactive de données offrent pourtant un cadre éprouvé pour convertir des
+données transactionnelles brutes en connaissances actionnables~\cite{chen2012bi,
+few2006dashboard}.
+
+Le présent rapport rend compte d'un stage réalisé en Licence~3 MIA à la Faculté
+des Sciences et Techniques de l'Université d'Abomey-Calavi, dont l'objet est la
+conception et la réalisation d'un tableau de bord web pour l'analyse des ventes
+de produits agricoles. Au-delà de sa dimension applicative, ce travail cherche
+à s'inscrire dans une démarche méthodique : il part d'une problématique
+argumentée, mobilise un état de l'art des outils décisionnels, formule des
+hypothèses vérifiables, puis confronte les résultats obtenus à des critères
+d'évaluation mesurables.
+
+Le document est organisé en sept chapitres. Le chapitre~1 précise le contexte,
+la problématique, les objectifs et les hypothèses. Le chapitre~2 dresse un état
+de l'art des tableaux de bord décisionnels et pose le cadre théorique
+(BI, indicateurs de performance, visualisation). Le chapitre~3 explicite la
+méthodologie de conduite du projet et le protocole d'évaluation. Les
+chapitres~4 à~6 détaillent respectivement l'analyse des besoins, la conception
+et la réalisation. Le chapitre~7 présente les tests, mesure les performances et
+discute de façon critique les résultats au regard des objectifs et de l'état de
+l'art. Une conclusion générale dresse le bilan objectif par objectif et ouvre
+sur des perspectives.
+
+% =============================================================================
+\chapter{Contexte, problématique et objectifs}
+
+\section{Contexte général}
+Le secteur agricole représente un pilier fondamental de l'économie béninoise.
+Les producteurs, coopératives et distributeurs de produits agricoles génèrent
+quotidiennement un volume important de données transactionnelles. Cependant,
+l'exploitation de ces données à des fins décisionnelles reste limitée, faute
+d'outils adaptés et accessibles.
+
+Dans le cadre de la formation en Licence 3 au département MIA de la FAST, le
+présent projet vise à mettre en pratique les compétences acquises en
+développement web, en bases de données et en analyse de données. Il s'inscrit
+dans une démarche professionnalisante qui confronte les étudiants à un problème
+concret du tissu économique local.
+
+Le domaine d'application choisi, la vente de produits agricoles, présente des
+caractéristiques particulièrement adaptées à un exercice d'analyse de données :
+volumes transactionnels significatifs, dimensions multiples (produits, clients,
+géographie, temporalité) et saisonnalité marquée des activités.
+
+\section{Problème traité}
+Le constat de départ est documenté~: au Bénin, l'agriculture emploie une part
+majoritaire de la population active et contribue significativement au produit
+intérieur brut, mais l'adoption d'outils numériques de gestion y demeure
+faible~\cite{fao2021digital,worldbank2020}. Il en résulte, pour les acteurs de
+la filière (producteurs, coopératives, distributeurs), plusieurs difficultés
+récurrentes dans le suivi de leurs activités commerciales~:
+\begin{itemize}
+  \item L'absence d'outil centralisé de consultation des ventes oblige à des
+        traitements manuels coûteux en temps et sujets à l'erreur.
+  \item L'impossibilité de visualiser les tendances temporelles empêche
+        l'anticipation des périodes de forte ou faible demande, alors même que
+        la saisonnalité structure fortement l'activité agricole.
+  \item Le manque d'indicateurs synthétiques rend difficile l'évaluation rapide
+        de la performance commerciale, contrairement à ce que permet un tableau
+        de bord bien conçu~\cite{few2006dashboard}.
+  \item L'absence de segmentation géographique et par produit limite la capacité
+        à orienter les efforts commerciaux.
+\end{itemize}
+
+\subsection{Question de recherche et sous-questions}
+De ces constats découle la question de recherche qui structure le travail~:
+\emph{dans quelle mesure un tableau de bord web fondé sur les principes de
+l'informatique décisionnelle permet-il de restituer, de manière compréhensible
+et exploitable, la performance commerciale d'une activité de ventes agricoles~?}
+Cette question se décline en trois sous-questions~:
+\begin{enumerate}
+  \item Quels indicateurs et représentations visuelles sont les plus pertinents
+        pour ce domaine et ce public d'utilisateurs~?
+  \item Une architecture web moderne peut-elle fournir ces restitutions avec des
+        temps de réponse compatibles avec un usage interactif~?
+  \item La solution proposée se distingue-t-elle des outils décisionnels
+        génériques existants au regard des besoins spécifiques de la filière~?
+\end{enumerate}
+On distingue ainsi la question de recherche, de nature analytique, des objectifs
+techniques opérationnels présentés à la section~\ref{sec:objectifs}, qui en
+constituent la traduction en livrables.
+
+\subsection{Hypothèses de travail}
+\label{sec:hypotheses}
+Afin de rendre le questionnement vérifiable, trois hypothèses testables sont
+formulées~:
+\begin{itemize}
+  \item[\textbf{H1}] Un ensemble restreint de quatre indicateurs clés complété
+        par quatre visualisations (évolution temporelle, classement produits,
+        répartition géographique, performance des vendeurs) suffit à couvrir les
+        principaux besoins de pilotage exprimés. \emph{Critère de vérification~:}
+        chacun des objectifs spécifiques trouve une réponse dans l'interface
+        (traçabilité objectif~$\rightarrow$~fonctionnalité, chapitre~7).
+  \item[\textbf{H2}] Une architecture client-serveur reposant sur un
+        \emph{ORM} et des index adaptés permet de maintenir les temps de réponse
+        des requêtes d'agrégation sous le seuil de 500~ms. \emph{Critère~:}
+        mesures de latence présentées au chapitre~7.
+  \item[\textbf{H3}] Une solution spécialisée, adaptée au contexte agricole
+        béninois (catégories de produits, villes, francs~CFA), offre une valeur
+        d'usage supérieure à un outil décisionnel générique pour ce cas précis.
+        \emph{Critère~:} analyse comparative qualitative du chapitre~2 et
+        discussion du chapitre~7.
+\end{itemize}
+
+La problématique centrale se formule dès lors ainsi~: comment concevoir un outil
+web ergonomique permettant aux acteurs agricoles de saisir, consulter et
+analyser leurs données de ventes à travers des indicateurs pertinents et des
+représentations visuelles adaptées, tout en garantissant des performances
+compatibles avec un usage interactif~?
+
+\section{Objectifs du stage}
+\label{sec:objectifs}
+\textbf{Objectif général :} Concevoir et réaliser un tableau de bord web
+fonctionnel pour l'analyse des ventes de produits agricoles.
+
+\noindent\textbf{Objectifs spécifiques :}
+\begin{itemize}
+  \item Concevoir un modèle de données adapté au domaine des ventes agricoles,
+        intégrant les dimensions produit, client, vendeur et géographie.
+  \item Développer une API REST sécurisée exposant les données de ventes avec
+        des capacités de filtrage temporel et par vendeur.
+  \item Calculer et présenter des indicateurs clés de performance : chiffre
+        d'affaires total, nombre de ventes, produit le plus vendu et tendance
+        d'évolution.
+  \item Réaliser des visualisations graphiques interactives : évolution
+        mensuelle sur 24~mois, classement des cinq meilleurs produits,
+        répartition par ville et performance par vendeur.
+  \item Implémenter un formulaire de saisie de nouvelles ventes permettant aux
+        vendeurs d'enregistrer leurs transactions en temps réel.
+  \item Mettre en place un système d'authentification sécurisé avec gestion des
+        rôles (administrateur et vendeur).
+  \item Assurer la responsivité de l'interface et proposer un thème clair/sombre
+        pour le confort d'utilisation.
+\end{itemize}
+
+% =============================================================================
+\chapter{État de l'art et cadre théorique}
+\label{chap:etat-art}
+
+Ce chapitre situe le projet dans son champ scientifique et technique. Il définit
+d'abord les concepts mobilisés (informatique décisionnelle, tableau de bord,
+indicateurs, visualisation), puis compare les principales solutions existantes,
+avant d'en dégager le positionnement de la solution développée.
+
+\section{L'informatique décisionnelle et les tableaux de bord}
+L'informatique décisionnelle (\emph{Business Intelligence}, BI) désigne
+l'ensemble des architectures, outils et méthodes qui transforment des données
+brutes en informations utiles à la décision~\cite{chen2012bi}. Un tableau de
+bord (\emph{dashboard}) en constitue la couche de restitution~: Few le définit
+comme «~un affichage visuel des informations les plus importantes, nécessaires
+à l'atteinte d'un ou plusieurs objectifs, consolidées sur un écran unique afin
+de pouvoir être appréhendées d'un seul coup d'\oe{}il~»~\cite{few2006dashboard}.
+Cette définition met l'accent sur trois exigences que nous reprenons à notre
+compte~: la sélection des informations essentielles, leur consolidation et leur
+lisibilité immédiate.
+
+La littérature distingue classiquement trois familles de tableaux de bord~:
+stratégiques (pilotage à long terme), tactiques (suivi d'activité) et
+opérationnels (supervision en temps quasi réel)~\cite{eckerson2010performance}.
+La solution développée relève principalement du niveau tactique~: elle vise le
+suivi périodique de la performance commerciale par les responsables et les
+vendeurs.
+
+\section{Indicateurs clés de performance}
+Un indicateur clé de performance (\emph{Key Performance Indicator}, KPI) est une
+mesure quantifiable de l'atteinte d'un objectif~\cite{parmenter2015kpi}. La
+qualité d'un tableau de bord dépend étroitement du choix des indicateurs~: un
+nombre restreint d'indicateurs pertinents vaut mieux qu'une multiplication de
+mesures secondaires qui saturent l'attention~\cite{few2006dashboard}. Pour une
+activité de ventes, les indicateurs usuels sont le chiffre d'affaires, le volume
+de transactions, le produit le plus vendu et la variation par rapport à une
+période de référence — quatre mesures que nous retenons (hypothèse~H1).
+
+\section{Principes de visualisation de données}
+La visualisation de données s'appuie sur les propriétés perceptives du système
+visuel humain pour rendre l'information intelligible. Les travaux fondateurs de
+Bertin sur la sémiologie graphique~\cite{bertin1967semiologie}, puis ceux de
+Cleveland et McGill sur la précision comparative des variables
+visuelles~\cite{cleveland1984graphical}, établissent que la position et la
+longueur sont mieux décodées que l'angle ou la surface. Tufte insiste par
+ailleurs sur la maximisation du «~ratio données/encre~» et la réduction du bruit
+graphique~\cite{tufte2001visual}. Ces principes guident nos choix de
+représentations~: courbe pour l'évolution temporelle, barres pour les
+classements, anneau réservé à une répartition catégorielle à faible cardinalité.
+
+\section{Analyse comparative des solutions existantes}
+Plusieurs plateformes décisionnelles matures permettent de construire des
+tableaux de bord. Le tableau~\ref{tab:comparatif} synthétise une comparaison
+qualitative de trois solutions de référence — Microsoft Power
+BI~\cite{powerbi}, Tableau~\cite{tableau} et Metabase~\cite{metabase} — au
+regard des critères pertinents pour notre cas d'usage.
+
+\begin{table}[H]
+\centering
+\caption{Comparaison qualitative de solutions décisionnelles existantes}
+\label{tab:comparatif}
+\renewcommand{\arraystretch}{1.3}
+\begin{tabularx}{\textwidth}{@{}l X X X@{}}
+\toprule
+\textbf{Critère} & \textbf{Power BI} & \textbf{Tableau} & \textbf{Metabase}\\
+\midrule
+Modèle de licence & Propriétaire, par utilisateur & Propriétaire, coûteux & Libre (open source) + offre payante\\
+Coût pour une PME & Modéré à élevé & Élevé & Faible (auto-hébergement)\\
+Personnalisation métier & Limitée aux modèles génériques & Étendue mais complexe & Moyenne\\
+Adaptation au contexte local (FCFA, filière) & Manuelle & Manuelle & Manuelle\\
+Intégration dans une application web sur mesure & Par \emph{embedding} payant & Par \emph{embedding} payant & Par intégration/API\\
+Courbe d'apprentissage & Moyenne & Élevée & Faible\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+Ces outils sont puissants et génériques, mais ils sont conçus pour connecter des
+sources hétérogènes et servir des analyses ad hoc, au prix d'un coût de licence
+et d'une charge de configuration non négligeables. Pour un besoin ciblé,
+intégré à une application métier et adapté au contexte local (catégories de
+produits agricoles, villes béninoises, monnaie en francs CFA), une solution
+développée sur mesure conserve un intérêt~: elle évite le coût récurrent des
+licences, intègre nativement la saisie transactionnelle et modèle précisément le
+domaine (hypothèse~H3). C'est ce positionnement qu'adopte le présent travail.
+
+\section{Positionnement et apport du projet}
+Au regard de cet état de l'art, la contribution du projet n'est pas la création
+d'un nouveau paradigme décisionnel, mais l'application raisonnée des principes de
+la BI et de la visualisation à un domaine peu outillé, assortie d'une brique
+analytique originale — la prévision par moyenne mobile et un système d'alertes
+présentés au chapitre~7 — qui dépasse la simple restitution descriptive.
+
+% =============================================================================
+\chapter{Méthodologie}
+\label{chap:methodo}
+
+\section{Démarche de conduite de projet}
+Le projet a été conduit selon une démarche \emph{agile} itérative et
+incrémentale, inspirée de Scrum~\cite{schwaber2020scrum} et adaptée à une équipe
+de quatre étudiants. Le travail a été découpé en itérations courtes d'environ
+une semaine, chacune produisant un incrément fonctionnel démontrable~: mise en
+place de l'authentification, puis des routes de statistiques, puis des
+visualisations, enfin de la saisie de ventes. Ce choix, préféré à un cycle en~V
+séquentiel, se justifie par l'incertitude initiale sur certaines briques
+techniques récentes (Better~Auth, Tailwind~CSS~4) qui appelaient une validation
+progressive par le code plutôt qu'une spécification exhaustive préalable.
+
+Chaque itération suivait le même enchaînement~: cadrage des besoins, conception
+locale, développement, revue croisée entre membres, puis intégration. La gestion
+de versions sous Git a servi de support à la collaboration (branches par
+fonctionnalité, revues de fusion).
+
+\section{Méthode de conception des données}
+La conception des données a suivi la démarche classique en deux temps du modèle
+entité-association~: élaboration d'un modèle conceptuel (MCD) indépendant de
+l'implémentation, puis dérivation d'un modèle logique relationnel (MLD), tel
+que formalisé par la méthode Merise~\cite{tabourier1986merise}. Cette
+formalisation, présentée au chapitre~5, précède et guide l'écriture du schéma
+Prisma.
+
+\section{Critères d'évaluation de la solution}
+\label{sec:criteres}
+Pour éviter une évaluation purement déclarative, la solution est appréciée selon
+des critères explicites et mesurables, repris au chapitre~7~:
+\begin{itemize}
+  \item \textbf{Couverture fonctionnelle} — proportion des objectifs
+        spécifiques effectivement satisfaits, établie par une matrice de
+        traçabilité objectif~$\rightarrow$~fonctionnalité~$\rightarrow$~test.
+  \item \textbf{Correction fonctionnelle} — taux de réussite des jeux de tests
+        (tableau~\ref{tab:tests}).
+  \item \textbf{Performance} — temps de réponse des principales routes d'API,
+        mesuré et confronté au seuil non fonctionnel de 500~ms (hypothèse~H2).
+  \item \textbf{Robustesse} — comportement attendu face aux entrées invalides
+        (validation, codes d'erreur HTTP).
+\end{itemize}
+
+\section{Protocole d'évaluation et limites méthodologiques}
+Les mesures de performance ont été réalisées sur le jeu de données de
+démonstration (604~ventes), en environnement local, en relevant le temps de
+réponse médian et le 95\textsuperscript{e} centile sur une série de requêtes
+répétées pour chaque route. Le protocole comporte des limites que nous
+assumons~: les données sont synthétiques et non issues d'une collecte de terrain,
+et aucune évaluation d'utilisabilité auprès d'utilisateurs réels (tests
+utilisateurs, questionnaire SUS~\cite{brooke1996sus}) n'a pu être conduite dans
+le temps imparti. Une telle validation, esquissée au chapitre~7, constitue une
+perspective à part entière.
+
+% =============================================================================
+\chapter{Analyse des besoins}
+
+\section{Besoins fonctionnels}
+Les besoins fonctionnels identifiés pour le système sont les suivants :
+\begin{enumerate}
+  \item \textbf{Authentification et gestion des rôles.} Le système doit
+        permettre la connexion des utilisateurs par e-mail et mot de passe. Deux
+        rôles sont définis : administrateur (accès complet) et vendeur (accès
+        restreint à ses propres ventes). La session doit être maintenue de
+        manière sécurisée via des cookies HTTP-only.
+  \item \textbf{Consultation du tableau de bord.} L'utilisateur authentifié doit
+        accéder à une page principale affichant quatre indicateurs clés (chiffre
+        d'affaires total, nombre de ventes, produit vedette, pourcentage
+        d'évolution), un graphique d'évolution temporelle sur 24~mois, un
+        classement des cinq produits les plus vendus, une répartition des ventes
+        par ville, un comparatif des performances par vendeur et un tableau des
+        ventes récentes.
+  \item \textbf{Filtrage temporel.} L'utilisateur doit pouvoir filtrer les
+        indicateurs et graphiques par mois et par année. Les filtres doivent
+        être synchronisés avec l'URL pour permettre le partage de vues
+        spécifiques.
+  \item \textbf{Saisie de ventes.} Les vendeurs doivent pouvoir enregistrer de
+        nouvelles ventes via un formulaire dédié, en sélectionnant le produit,
+        le client et la quantité. Le montant total doit être calculé
+        automatiquement.
+  \item \textbf{Gestion des clients.} Le système doit permettre la consultation
+        de la liste des clients et l'ajout de nouveaux clients avec leurs
+        informations (nom, prénom, ville).
+\end{enumerate}
+
+\section{Besoins non fonctionnels}
+\textbf{Performance.} Les temps de réponse des requêtes API doivent rester
+inférieurs à 500~ms. Le chargement initial du tableau de bord doit afficher des
+indicateurs de chargement (skeletons) pendant la récupération des données.
+
+\noindent\textbf{Sécurité.} Les mots de passe doivent être hachés avant
+stockage. Les sessions doivent utiliser des cookies HTTP-only non accessibles
+par JavaScript côté client. Les headers HTTP de sécurité doivent être configurés
+(Content-Security-Policy, X-Frame-Options). La politique CORS doit restreindre
+les origines autorisées au seul frontend. Toutes les données en entrée doivent
+être validées côté serveur par des schémas Zod.
+
+\noindent\textbf{Portabilité.} L'interface doit être responsive et adaptée aux
+écrans desktop, tablette et mobile. Un mode sombre doit être disponible.
+L'application doit être déployable sur des plateformes cloud (Vercel pour le
+frontend, Render pour le backend, Neon pour la base de données) avec une
+configuration reproductible.
+
+\section{Choix technologiques}
+Les technologies retenues et leurs justifications sont récapitulées dans le
+tableau~\ref{tab:techno}. Chaque choix s'appuie sur la documentation officielle
+des outils~: Next.js~\cite{nextjs} et React~\cite{react} pour le frontend,
+Express~\cite{express}, Prisma~\cite{prisma} et Better~Auth~\cite{betterauth}
+pour le backend, Chart.js~\cite{chartjs} pour la visualisation, ainsi que
+Tailwind~CSS~\cite{tailwind}, shadcn/ui~\cite{shadcn}, TanStack~Query
+\cite{tanstack}, Zod~\cite{zod}, nuqs~\cite{nuqs} et Helmet~\cite{helmet}. La
+base de données PostgreSQL est hébergée sur Neon~\cite{neon}.
+
+\begin{table}[H]
+\centering
+\caption{Technologies retenues et justifications}
+\label{tab:techno}
+\renewcommand{\arraystretch}{1.3}
+\begin{tabularx}{\textwidth}{@{}l l X@{}}
+\toprule
+\textbf{Composant} & \textbf{Technologie} & \textbf{Justification}\\
+\midrule
+Framework frontend & Next.js~16 (App Router) & Rendu serveur, routage fichier, middleware intégré, rewrites pour le proxy API\\
+Bibliothèque UI & React~19 & Composants réactifs, hooks, Server Components\\
+Langage & TypeScript 5/6 & Typage statique, détection d'erreurs à la compilation\\
+Style & Tailwind CSS~4 & Classes utilitaires, design responsive mobile-first\\
+Composants UI & shadcn/ui 4.7 & Composants accessibles basés sur Radix UI, personnalisables\\
+Graphiques & Chart.js 4.5 + react-chartjs-2 & Graphiques performants (canvas), intégration React native\\
+Fetching & TanStack React Query~5 & Cache intelligent, revalidation automatique\\
+Formulaires & react-hook-form + Zod~4 & Validation déclarative, schémas réutilisables\\
+État URL & nuqs~2.8 & Synchronisation filtres-URL, partage de vues\\
+Framework backend & Express~5 & Routage explicite, middleware chaînable, écosystème mature\\
+ORM & Prisma~7.8 & Schéma déclaratif, migrations automatiques, client typé\\
+Authentification & Better Auth~1.6 & Sessions, rôles, cookies HTTP-only natifs\\
+Base de données & PostgreSQL (Neon) & Serverless, scalable, compatible Prisma\\
+Sécurité HTTP & Helmet~8 & Configuration automatique des headers de sécurité\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+% =============================================================================
+\chapter{Conception}
+
+\section{Modèle Conceptuel de Données (MCD)}
+Le modèle conceptuel de données identifie les entités du domaine et leurs
+associations. Le système distingue deux sous-domaines : l'authentification
+(géré par Better Auth) et le métier (spécifique à l'application). La
+figure~\ref{fig:mcd} présente le diagramme entité-association du système.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+  font=\footnotesize,
+  entity/.style={rectangle, draw=codeframe, fill=codebg, rounded corners=2pt,
+    minimum height=8mm, minimum width=20mm, align=center, thick},
+  rel/.style={->, >=Stealth, thick, draw=codecom},
+  lbl/.style={midway, fill=white, inner sep=1pt, text=codecom}]
+
+  % Entités métier
+  \node[entity] (produit) {\textbf{Produit}};
+  \node[entity, right=26mm of produit] (vente) {\textbf{Vente}};
+  \node[entity, right=26mm of vente] (client) {\textbf{Client}};
+  \node[entity, above=14mm of vente] (user) {\textbf{User}};
+
+  % Entités d'authentification
+  \node[entity, above left=12mm and 2mm of user] (session) {\textbf{Session}};
+  \node[entity, above=12mm of user] (account) {\textbf{Account}};
+  \node[entity, above right=12mm and 2mm of user] (verif) {\textbf{Verification}};
+
+  % Associations
+  \draw[rel] (produit) -- node[lbl,above]{1,N} (vente);
+  \draw[rel] (client)  -- node[lbl,above]{1,N} (vente);
+  \draw[rel] (user)    -- node[lbl,right]{1,N} (vente);
+  \draw[rel] (user)    -- node[lbl,left]{1,N} (session);
+  \draw[rel] (user)    -- node[lbl,right]{1,N} (account);
+
+  \begin{scope}[on background layer]
+    \node[draw=codeframe, dashed, rounded corners, fit=(session)(account)(verif),
+      inner sep=4pt, label={[text=codecom]above:{Sous-domaine authentification}}] {};
+  \end{scope}
+\end{tikzpicture}
+\caption[Modèle conceptuel de données du système AGRICO]{Modèle conceptuel de
+données du système AGRICO. Les entités métier (Produit, Vente, Client, User)
+sont reliées par des associations de cardinalité 1,N ; le sous-domaine
+d'authentification (Session, Account, Verification) est géré par Better Auth.}
+\label{fig:mcd}
+\end{figure}
+
+Les entités identifiées sont les suivantes :
+\begin{itemize}
+  \item \textbf{Produit.} Représente un produit agricole commercialisé.
+        Attributs : identifiant unique, nom, catégorie (céréales, tubercules,
+        fruits, légumes, oléagineux, épices) et prix unitaire en francs CFA.
+  \item \textbf{Client.} Représente un acheteur de produits agricoles.
+        Attributs : identifiant unique, nom, prénom et ville de résidence. La
+        ville est modélisée comme un attribut simple du client (et non comme une
+        entité séparée), car les besoins d'analyse géographique se limitent à
+        une agrégation par nom de ville.
+  \item \textbf{User (Utilisateur).} Représente un utilisateur du système.
+        Attributs : identifiant, e-mail unique, nom, rôle
+        («~admin~» ou «~vendeur~»), indicateur de vérification d'e-mail, image
+        optionnelle, horodatages de création et de mise à jour. Les vendeurs
+        sont des utilisateurs ayant le rôle «~vendeur~» ; il n'existe pas
+        d'entité Vendeur séparée.
+  \item \textbf{Vente.} Représente une transaction commerciale unitaire. Chaque
+        vente associe un produit, un vendeur (utilisateur) et un client, avec
+        une quantité entière et une date de vente. Le montant total est calculé
+        automatiquement (quantité multipliée par le prix unitaire). Une vente
+        concerne un seul produit ; le modèle ne comporte pas de notion de ligne
+        de vente ou de panier multi-produits.
+  \item \textbf{Session.} Maintient l'état de connexion d'un utilisateur avec un
+        jeton unique et une date d'expiration.
+  \item \textbf{Account.} Stocke les identifiants d'un utilisateur pour le
+        fournisseur d'authentification «~credential~» (e-mail et mot de passe
+        haché).
+  \item \textbf{Verification.} Gère les jetons temporaires pour la vérification
+        d'e-mail et la réinitialisation de mot de passe.
+\end{itemize}
+
+Les associations sont : User~--~Session (1,N), User~--~Account (1,N),
+User~--~Vente (1,N), Produit~--~Vente (1,N) et Client~--~Vente (1,N).
+
+\section{Modèle Logique de Données (MLD)}
+Le modèle logique traduit le MCD en tables relationnelles. Les identifiants sont
+générés automatiquement (cuid pour les entités métier, chaînes pour les entités
+d'authentification). Les clés étrangères portent le suffixe \texttt{Id}. La
+notation relationnelle est la suivante :
+\begin{itemize}
+  \item \texttt{User(id, email, name, emailVerified, image, role, createdAt, updatedAt)}
+  \item \texttt{Session(id, expiresAt, token, \#userId)}
+  \item \texttt{Account(id, accountId, providerId, \#userId, password)}
+  \item \texttt{Verification(id, identifier, value, expiresAt)}
+  \item \texttt{Produit(id, nom, categorie, prixUnitaire)}
+  \item \texttt{Client(id, nom, prenom, ville)}
+  \item \texttt{Vente(id, \#produitId, \#vendeurId, \#clientId, quantite,}\\
+        \texttt{\phantom{Vente(}dateVente, montantTotal, createdAt)}
+\end{itemize}
+
+Les règles d'intégrité sont les suivantes : la suppression d'un utilisateur
+entraîne la suppression en cascade de ses sessions et comptes ; le montant total
+d'une vente est calculé à la création ; l'e-mail d'un utilisateur est unique ; le
+jeton de session est unique. Des index sont définis sur les colonnes
+\texttt{dateVente}, \texttt{vendeurId} et \texttt{produitId} de la table Vente
+pour optimiser les requêtes d'agrégation.
+
+\section{Architecture de l'application}
+L'architecture du système suit le patron client-serveur à trois niveaux, comme
+illustré par la figure~\ref{fig:archi}.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+  font=\footnotesize,
+  tier/.style={rectangle, draw=codeframe, rounded corners=3pt, thick,
+    fill=codebg, text width=11.4cm, align=center, inner sep=7pt},
+  flow/.style={<->, >=Stealth, very thick, draw=codekw},
+  note/.style={midway, right, text=codecom, font=\scriptsize\itshape,
+    xshift=3pt}]
+
+  \node[tier] (client) {%
+    \textbf{Navigateur client} --- Next.js~16 / React~19 --- Vercel\\[2pt]
+    {\scriptsize Pages RSC (dashboard, login, ventes) $\cdot$ Composants
+    Chart.js et shadcn/ui $\cdot$ TanStack Query (cache)}\\[1pt]
+    {\scriptsize\itshape Rewrite /api/* $\rightarrow$ backend}};
+
+  \node[tier, below=16mm of client] (api) {%
+    \textbf{Serveur API} --- Express~5 --- Render\\[2pt]
+    {\scriptsize Helmet $\cdot$ CORS $\cdot$ Morgan $\cdot$ Better Auth
+    (sessions, rôles) $\cdot$ Routes /api/sales, /api/stats, /api/produits}\\[1pt]
+    {\scriptsize\itshape Prisma ORM}};
+
+  \node[tier, below=16mm of api] (db) {%
+    \textbf{Base de données} --- PostgreSQL / Neon (serverless)\\[2pt]
+    {\scriptsize 7 tables~: User, Session, Account, Verification, Produit,
+    Client, Vente}};
+
+  \draw[flow] (client) -- (api) node[note]{HTTP (JSON) + cookies HTTP-only};
+  \draw[flow] (api) -- (db) node[note]{TCP --- protocole PostgreSQL};
+\end{tikzpicture}
+\caption[Architecture technique en trois niveaux du système AGRICO]{Architecture
+technique en trois niveaux du système AGRICO~: navigateur client (présentation),
+serveur API (logique métier et sécurité) et base de données (persistance).}
+\label{fig:archi}
+\end{figure}
+
+Le mécanisme de proxy constitue un point d'architecture notable. Les cookies
+HTTP-only nécessitent que les requêtes d'authentification et les requêtes de
+données proviennent de la même origine. Next.js est configuré en mode proxy via
+sa fonctionnalité rewrites : le frontend émet ses requêtes vers
+\path{/api/*} (même origine), Next.js les réécrit vers le backend Express, et
+les cookies \texttt{better-auth.session\_token} sont ainsi posés et lus sur le
+domaine du frontend.
+
+Le flux d'une requête typique suit huit étapes :
+\begin{enumerate}
+  \item L'utilisateur interagit avec l'interface.
+  \item TanStack Query déclenche un fetch vers l'API.
+  \item Le middleware Next.js vérifie la présence du cookie de session.
+  \item Next.js réécrit la requête vers le backend.
+  \item Le middleware \texttt{requireSession} d'Express valide le jeton.
+  \item La route appelle Prisma pour agréger les données.
+  \item Le résultat JSON est retourné.
+  \item React Query met en cache le résultat et déclenche le rendu.
+\end{enumerate}
+
+% =============================================================================
+\chapter{Réalisation}
+
+\section{Structure de la base de données}
+La base de données PostgreSQL est hébergée sur Neon, une plateforme serverless
+offrant un plan gratuit adapté au développement. Le schéma est géré par Prisma
+ORM : les modifications sont versionnées sous forme de migrations SQL générées
+automatiquement. Le listing~\ref{lst:prisma-metier} présente un extrait du
+schéma Prisma décrivant les entités métier.
+
+\begin{lstlisting}[caption={Schéma Prisma des entités métier (extrait de prisma/schema.prisma)},label={lst:prisma-metier}]
+model Produit {
+  id           String  @id @default(cuid())
+  nom          String
+  categorie    String
+  prixUnitaire Float
+  ventes       Vente[]
+}
+
+model Client {
+  id     String  @id @default(cuid())
+  nom    String
+  prenom String
+  ville  String
+  ventes Vente[]
+}
+
+model Vente {
+  id           String   @id @default(cuid())
+  produitId    String
+  vendeurId    String
+  clientId     String
+  quantite     Int
+  dateVente    DateTime
+  montantTotal Float
+  createdAt    DateTime @default(now())
+
+  produit Produit @relation(fields: [produitId], references: [id])
+  vendeur User    @relation(fields: [vendeurId], references: [id])
+  client  Client  @relation(fields: [clientId], references: [id])
+
+  @@index([dateVente])
+  @@index([vendeurId])
+  @@index([produitId])
+}
+\end{lstlisting}
+
+Le script de seed (\texttt{src/seed.ts}) génère un jeu de données représentatif :
+5~utilisateurs (1~administrateur, 4~vendeurs), 10~produits agricoles répartis en
+6~catégories, 40~clients dans 6~villes (Cotonou, Abomey-Calavi, Porto-Novo,
+Parakou, Bohicon, Ouidah) et 604~ventes réparties sur 24~mois (juin 2024 à mai
+2026) avec une saisonnalité réaliste reflétant les cycles de récolte.
+
+\begin{table}[H]
+\centering
+\caption{Produits agricoles et prix unitaires}
+\label{tab:produits}
+\renewcommand{\arraystretch}{1.25}
+\begin{tabular}{@{}l l r@{}}
+\toprule
+\textbf{Produit} & \textbf{Catégorie} & \textbf{Prix unitaire (FCFA)}\\
+\midrule
+Maïs          & Céréales    & 250\\
+Riz local     & Céréales    & 450\\
+Manioc        & Tubercules  & 150\\
+Igname        & Tubercules  & 350\\
+Tomate        & Légumes     & 500\\
+Piment        & Épices      & 600\\
+Ananas        & Fruits      & 300\\
+Noix de palme & Oléagineux  & 200\\
+Soja          & Oléagineux  & 400\\
+Arachide      & Oléagineux  & 280\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Requêtes principales}
+L'accès aux données est réalisé via le client Prisma, qui génère des requêtes SQL
+optimisées à partir d'une syntaxe TypeScript déclarative.
+
+\subsection{Indicateurs de synthèse}
+Le listing~\ref{lst:summary} présente les requêtes Prisma utilisées pour calculer
+les indicateurs clés du tableau de bord : chiffre d'affaires total, nombre de
+ventes et produit le plus vendu pour un mois donné.
+
+\begin{lstlisting}[caption={Requêtes Prisma pour les indicateurs de synthèse (route GET /api/stats/summary)},label={lst:summary}]
+const ventes = await prisma.vente.aggregate({
+  where: {
+    dateVente: { gte: startDate, lt: endDate },
+  },
+  _sum: { montantTotal: true },
+  _count: { id: true },
+});
+
+const topProduit = await prisma.vente.groupBy({
+  by: ['produitId'],
+  where: { dateVente: { gte: startDate, lt: endDate } },
+  _sum: { quantite: true },
+  orderBy: { _sum: { quantite: 'desc' } },
+  take: 1,
+});
+\end{lstlisting}
+
+\subsection{Données des graphiques}
+Le listing~\ref{lst:charts} présente les requêtes Prisma pour l'évolution
+mensuelle du chiffre d'affaires sur 24~mois et le classement des cinq produits
+les plus vendus.
+
+\begin{lstlisting}[caption={Requêtes Prisma pour les graphiques (route GET /api/stats/charts)},label={lst:charts}]
+const evolution = await prisma.vente.groupBy({
+  by: ['dateVente'],
+  where: { dateVente: { gte: twentyFourMonthsAgo } },
+  _sum: { montantTotal: true },
+  orderBy: { dateVente: 'asc' },
+});
+
+const top5 = await prisma.vente.groupBy({
+  by: ['produitId'],
+  where: { dateVente: { gte: startDate, lt: endDate } },
+  _sum: { quantite: true },
+  orderBy: { _sum: { quantite: 'desc' } },
+  take: 5,
+});
+\end{lstlisting}
+
+\subsection{Création d'une vente}
+Le listing~\ref{lst:create-sale} présente la logique de création d'une vente,
+incluant la récupération du prix unitaire du produit et le calcul automatique du
+montant total.
+
+\begin{lstlisting}[caption={Création d'une vente (route POST /api/sales)},label={lst:create-sale}]
+const produit = await prisma.produit.findUniqueOrThrow({
+  where: { id: produitId },
+});
+
+const vente = await prisma.vente.create({
+  data: {
+    produitId,
+    vendeurId: session.user.id,
+    clientId,
+    quantite,
+    dateVente: new Date(),
+    montantTotal: quantite * produit.prixUnitaire,
+  },
+});
+\end{lstlisting}
+
+\section{Développement de l'application}
+
+\subsection{Authentification et gestion des sessions}
+L'authentification repose sur Better Auth, configuré avec le fournisseur
+«~credential~» (e-mail et mot de passe haché), le plugin «~admin~» pour la
+gestion des rôles et Prisma comme service de stockage. Les cookies
+\texttt{better-auth.session\_token} sont émis avec les attributs
+\texttt{httpOnly}, \texttt{secure} et \texttt{sameSite: lax}.
+
+Côté backend, le middleware \texttt{requireSession} extrait le jeton de session
+depuis les headers de la requête, valide la session auprès de Better Auth, et
+attache les objets \texttt{user} et \texttt{session} à la requête. Le middleware
+\texttt{requireRole(role)} vérifie le rôle de l'utilisateur authentifié. Côté
+frontend, le client Better Auth (\texttt{lib/auth-client.ts}) expose les
+méthodes \texttt{signIn}, \texttt{signOut} et \texttt{getSession}. Le middleware
+Next.js (\texttt{middleware.ts}) protège les routes en vérifiant la présence du
+cookie de session et redirige vers \path{/login} en cas d'absence.
+
+Le listing~\ref{lst:auth-mw} présente le middleware d'authentification côté
+backend.
+
+\begin{lstlisting}[caption={Middleware d'authentification Express (middleware/auth.ts)},label={lst:auth-mw}]
+export const requireSession: RequestHandler = async (req, res, next) => {
+  const session = await auth.api.getSession({
+    headers: fromNodeHeaders(req.headers),
+  });
+  if (!session) {
+    res.status(401).json({ error: "Non authentifié" });
+    return;
+  }
+  req.user = session.user;
+  req.session = session.session;
+  next();
+};
+\end{lstlisting}
+
+\subsection{Tableau de bord et indicateurs clés}
+Le tableau de bord principal (page \path{/}) affiche quatre indicateurs clés via
+le composant \texttt{KpiCard}. Chaque carte présente une icône, un titre, une
+valeur formatée et une tendance en pourcentage par rapport au mois précédent. Les
+données sont récupérées par le hook \texttt{useSummary(month, year)} qui interroge
+la route GET \path{/api/stats/summary}.
+
+Le listing~\ref{lst:use-summary} présente le hook de récupération des
+indicateurs.
+
+\begin{lstlisting}[caption={Hook TanStack Query pour les indicateurs (hooks/use-dashboard-data.ts)},label={lst:use-summary}]
+export function useSummary(month: number | null, year: number | null) {
+  return useQuery({
+    queryKey: ['summary', month, year],
+    queryFn: () => fetchApi<SummaryResponse>(
+      `/api/stats/summary?month=${month}&year=${year}`
+    ),
+  });
+}
+\end{lstlisting}
+
+\subsection{Visualisation des données}
+La visualisation repose sur Chart.js via le wrapper react-chartjs-2. Quatre
+composants graphiques sont implémentés :
+\begin{itemize}
+  \item \texttt{EvolutionChart} : graphique en ligne (Line) montrant l'évolution
+        du chiffre d'affaires mensuel sur 24~mois.
+  \item \texttt{Top5ProduitsChart} : graphique en barres horizontales (Bar)
+        classant les cinq produits les plus vendus par quantité.
+  \item \texttt{VillesChart} : graphique en anneau (Doughnut) montrant la
+        répartition des ventes par ville.
+  \item \texttt{VendeursChart} : graphique en barres verticales (Bar) comparant
+        le chiffre d'affaires généré par chaque vendeur.
+\end{itemize}
+Les données sont récupérées par le hook \texttt{useCharts(month, year)} qui
+interroge la route GET \path{/api/stats/charts}. Les composants graphiques sont
+marqués «~use client~» car Chart.js utilise l'API Canvas du navigateur.
+
+\subsection{Saisie des ventes}
+La page \path{/ventes} permet aux vendeurs d'enregistrer de nouvelles
+transactions via le composant \texttt{SaleForm}. Ce formulaire utilise
+react-hook-form avec un résolveur Zod pour la validation. Il comprend trois
+champs : sélection du produit (liste déroulante alimentée par
+GET \path{/api/produits}), sélection du client (liste déroulante alimentée par
+GET \path{/api/clients}), et saisie de la quantité (entier positif). Le montant
+total est calculé et affiché en temps réel. La soumission déclenche un POST
+\path{/api/sales} avec notification toast de succès ou d'erreur via Sonner.
+
+\subsection{Filtrage par période}
+Les filtres de mois et d'année sont gérés par le composant
+\texttt{MonthYearFilter} et la bibliothèque nuqs, qui synchronise les paramètres
+d'URL avec l'état React. Un changement de filtre met à jour l'URL
+(ex.: \path{?month=3&year=2026}), ce qui invalide les clés de requête TanStack
+Query et déclenche automatiquement un nouveau fetch vers les routes de
+statistiques. Ce mécanisme autorise le partage de vues filtrées par simple copie
+de l'URL.
+
+\section{Interfaces utilisateur}
+
+\subsection*{Page de connexion}
+La page de connexion (\path{/login}) présente un formulaire centré sur l'écran
+avec les champs e-mail et mot de passe. La validation côté client vérifie le
+format de l'e-mail et la longueur minimale du mot de passe. Après connexion
+réussie, l'utilisateur est redirigé vers le tableau de bord.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[font=\scriptsize]
+  \draw[draw=codeframe, thick, rounded corners=3pt, fill=codebg]
+    (0,0) rectangle (9,5.4);
+  % carte centrée
+  \draw[draw=codeframe, thick, rounded corners=3pt, fill=white]
+    (2.7,0.7) rectangle (6.3,4.7);
+  \node at (4.5,4.3) {\bfseries AGRICO};
+  \node at (4.5,3.8) {\color{codecom}Connexion};
+  \draw[draw=codeframe] (3.0,3.1) rectangle (6.0,3.5);
+  \node[right] at (3.05,3.3) {\color{codecom}e-mail};
+  \draw[draw=codeframe] (3.0,2.4) rectangle (6.0,2.8);
+  \node[right] at (3.05,2.6) {\color{codecom}mot de passe};
+  \draw[draw=codekw, fill=codekw!12, rounded corners=2pt] (3.0,1.5) rectangle (6.0,2.0);
+  \node at (4.5,1.75) {\color{codekw}\bfseries Se connecter};
+\end{tikzpicture}
+\caption[Maquette de la page de connexion]{Maquette schématique de la page de
+connexion (\path{/login})~: carte centrée comportant les champs e-mail et mot
+de passe et le bouton de validation.}
+\label{fig:login}
+\end{figure}
+
+\subsection*{Tableau de bord principal}
+La page principale (\path{/}) s'articule autour de trois zones : une barre
+latérale permanente regroupant les liens de navigation, les informations
+utilisateur et le bouton de déconnexion ; une barre supérieure affichant le
+titre, le sélecteur de thème et les filtres mois/année ; une zone de contenu
+organisée en grille responsive comprenant quatre cartes KPI alignées en rangée,
+le graphique d'évolution temporelle sur toute la largeur, le classement des cinq
+premiers produits et la répartition géographique par ville disposés côte à côte,
+puis les performances par vendeur et le tableau des ventes récentes. Chaque
+section affiche un squelette animé pendant le chargement.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[font=\scriptsize,
+  box/.style={draw=codeframe, thick, rounded corners=2pt, fill=white}]
+  \draw[box, fill=codebg] (0,0) rectangle (12,7);
+  % barre latérale
+  \draw[box, fill=codebg] (0,0) rectangle (2,7);
+  \node[align=center] at (1,6.4) {\bfseries AGRICO};
+  \node[align=left] at (1,5.6) {\color{codecom}Dashboard};
+  \node[align=left] at (1,5.2) {\color{codecom}Ventes};
+  \node[align=left] at (1,0.5) {\color{codecom}Déconnexion};
+  % barre supérieure
+  \draw[box] (2.2,6.3) rectangle (11.8,6.9);
+  \node[right] at (2.3,6.6) {\color{codecom}Titre};
+  \node[left] at (11.7,6.6) {\color{codecom}Thème | Mois/Année};
+  % 4 KPI
+  \foreach \x/\i in {2.2/1,4.6/2,7.0/3,9.4/4}{
+    \draw[box] (\x,5.1) rectangle (\x+2.2,6.0);
+    \node at (\x+1.1,5.55) {\color{codekw}\bfseries KPI \i};}
+  % graphique évolution pleine largeur
+  \draw[box] (2.2,3.4) rectangle (11.8,4.9);
+  \node at (7.0,4.15) {\color{codecom}Évolution du chiffre d'affaires (24 mois)};
+  % top5 + villes
+  \draw[box] (2.2,1.6) rectangle (6.8,3.2);
+  \node at (4.5,2.4) {\color{codecom}Top 5 produits};
+  \draw[box] (7.2,1.6) rectangle (11.8,3.2);
+  \node at (9.5,2.4) {\color{codecom}Répartition par ville};
+  % vendeurs + ventes récentes
+  \draw[box] (2.2,0.2) rectangle (6.8,1.4);
+  \node at (4.5,0.8) {\color{codecom}Performance vendeurs};
+  \draw[box] (7.2,0.2) rectangle (11.8,1.4);
+  \node at (9.5,0.8) {\color{codecom}Ventes récentes};
+\end{tikzpicture}
+\caption[Maquette du tableau de bord principal]{Maquette schématique du tableau
+de bord principal (\path{/})~: barre latérale de navigation, barre supérieure de
+filtres, quatre cartes KPI, graphique d'évolution en pleine largeur, puis
+classement des produits, répartition géographique, performance des vendeurs et
+ventes récentes.}
+\label{fig:dashboard}
+\end{figure}
+
+\subsection*{Page de saisie des ventes}
+La page de saisie (\path{/ventes}) permet aux vendeurs d'enregistrer de nouvelles
+transactions. Elle contient un formulaire structuré avec sélecteurs pour le
+produit et le client, un champ de quantité avec validation en temps réel,
+l'affichage dynamique du montant total calculé, et un bouton de soumission avec
+état de chargement.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[font=\scriptsize]
+  \draw[draw=codeframe, thick, rounded corners=3pt, fill=codebg]
+    (0,0) rectangle (9,5.6);
+  \node at (4.5,5.1) {\bfseries Nouvelle vente};
+  \draw[draw=codeframe, fill=white] (1.2,4.1) rectangle (7.8,4.6);
+  \node[right] at (1.25,4.35) {\color{codecom}Produit \(\blacktriangledown\)};
+  \draw[draw=codeframe, fill=white] (1.2,3.3) rectangle (7.8,3.8);
+  \node[right] at (1.25,3.55) {\color{codecom}Client \(\blacktriangledown\)};
+  \draw[draw=codeframe, fill=white] (1.2,2.5) rectangle (7.8,3.0);
+  \node[right] at (1.25,2.75) {\color{codecom}Quantité};
+  \draw[draw=codeframe, dashed] (1.2,1.6) rectangle (7.8,2.2);
+  \node[right] at (1.25,1.9) {\color{codecom}Montant total (calculé automatiquement)};
+  \draw[draw=codekw, fill=codekw!12, rounded corners=2pt] (1.2,0.6) rectangle (7.8,1.2);
+  \node at (4.5,0.9) {\color{codekw}\bfseries Enregistrer la vente};
+\end{tikzpicture}
+\caption[Maquette du formulaire de saisie d'une vente]{Maquette schématique du
+formulaire de saisie (\path{/ventes})~: sélecteurs produit et client, champ
+quantité, affichage dynamique du montant total et bouton d'enregistrement.}
+\label{fig:saleform}
+\end{figure}
+
+% =============================================================================
+\chapter{Tests, résultats et discussion}
+
+\section{Stratégie de test}
+La stratégie de test retenue s'articule autour de trois niveaux complémentaires.
+Le premier repose sur la vérification statique assurée par le typage strict de
+TypeScript et la validation par Zod, garantissant la cohérence des structures de
+données tant à la compilation qu'à l'exécution. Le deuxième niveau concerne les
+tests d'intégration des routes API, qui vérifient le comportement attendu de
+chaque point de terminaison dans des scénarios représentatifs. Le troisième
+niveau englobe les tests fonctionnels de bout en bout, couvrant le parcours
+utilisateur complet depuis l'authentification jusqu'à la consultation du tableau
+de bord et jusqu'à la saisie d'une vente.
+
+\section{Jeux de tests}
+\begin{small}
+\begin{longtable}{@{}l >{\RaggedRight}p{2.4cm} >{\RaggedRight}p{4.0cm} >{\RaggedRight}p{3.4cm} l@{}}
+\caption{Jeux de tests fonctionnels}\label{tab:tests}\\
+\toprule
+\textbf{N\textsuperscript{o}} & \textbf{Action testée} & \textbf{Données utilisées} & \textbf{Résultat attendu} & \textbf{Obtenu}\\
+\midrule
+\endfirsthead
+\multicolumn{5}{c}{\textit{Suite du tableau~\ref{tab:tests}}}\\
+\toprule
+\textbf{N\textsuperscript{o}} & \textbf{Action testée} & \textbf{Données utilisées} & \textbf{Résultat attendu} & \textbf{Obtenu}\\
+\midrule
+\endhead
+\midrule
+\multicolumn{5}{r}{\textit{Suite page suivante}}\\
+\endfoot
+\bottomrule
+\endlastfoot
+T1  & Connexion valide & e-mail : admin@agrico.bj, mdp : Admin2024! & 200, cookie session posé & Conforme\\
+T2  & Connexion e-mail inconnu & e-mail : inconnu@test.bj & 401, message d'erreur & Conforme\\
+T3  & Connexion mot de passe incorrect & e-mail : admin@agrico.bj, mdp : faux & 401, message d'erreur & Conforme\\
+T4  & Accès route protégée sans session & GET \path{/api/stats/summary} sans cookie & 401 Unauthorized & Conforme\\
+T5  & Déconnexion & POST \path{/api/auth/sign-out} avec cookie & 200, cookie supprimé & Conforme\\
+T6  & KPI mois courant & GET \path{/api/stats/summary?month=5&year=2026} & JSON avec totalRevenue > 0 & Conforme\\
+T7  & KPI mois sans ventes & GET \path{/api/stats/summary?month=12&year=2020} & totalRevenue = 0, totalSales = 0 & Conforme\\
+T8  & Évolution 24 mois & GET \path{/api/stats/charts?month=5&year=2026} & Tableau de 24 éléments & Conforme\\
+T9  & Top 5 produits & GET \path{/api/stats/charts?month=5&year=2026} & 5 éléments ordonnés décroissants & Conforme\\
+T10 & Répartition par ville & GET \path{/api/stats/charts} & Tableau avec les 6 villes & Conforme\\
+T11 & Performance vendeurs & GET \path{/api/stats/charts} & Tableau de 4 éléments & Conforme\\
+T12 & Création vente valide & POST \path{/api/sales} \{produitId, clientId, quantité : 25\} & 201, montantTotal calculé & Conforme\\
+T13 & Quantité invalide & POST \path{/api/sales} \{quantité : 0\} & 400, erreur validation Zod & Conforme\\
+T14 & Produit inexistant & POST \path{/api/sales} \{produitId : \texttt{"invalide"}\} & 404, produit non trouvé & Conforme\\
+T15 & Liste produits & GET \path{/api/produits} & 200, tableau de 10 produits & Conforme\\
+T16 & Création client valide & POST \path{/api/clients} \{nom, prénom, ville\} & 201, client créé & Conforme\\
+T17 & Création client incomplète & POST \path{/api/clients} \{nom seulement\} & 400, validation Zod & Conforme\\
+\end{longtable}
+\end{small}
+
+L'ensemble des dix-sept cas de test est conforme au résultat attendu, ce qui
+établit un taux de réussite fonctionnel de 100~\% sur le périmètre couvert. Ce
+résultat, s'il valide la correction des fonctionnalités implémentées, doit être
+nuancé~: les tests portent sur des scénarios nominaux et quelques cas d'erreur,
+non sur une couverture exhaustive des combinaisons possibles.
+
+\section{Traçabilité des objectifs et couverture fonctionnelle}
+Afin d'évaluer objectivement l'atteinte des objectifs (critère de couverture de
+la section~\ref{sec:criteres}), le tableau~\ref{tab:tracabilite} met en regard
+chaque objectif spécifique du chapitre~1, la fonctionnalité qui y répond et le
+test associé. Cette matrice constitue la vérification de l'hypothèse~H1.
+
+\begin{table}[H]
+\centering
+\caption{Matrice de traçabilité objectif $\rightarrow$ fonctionnalité $\rightarrow$ test}
+\label{tab:tracabilite}
+\renewcommand{\arraystretch}{1.25}
+\begin{tabularx}{\textwidth}{@{}X X l@{}}
+\toprule
+\textbf{Objectif spécifique} & \textbf{Fonctionnalité livrée} & \textbf{Test(s)}\\
+\midrule
+Modèle de données du domaine & Schéma Prisma (7 modèles) & T15\\
+API REST sécurisée et filtrable & Routes Express + \texttt{requireSession} & T4--T8\\
+Indicateurs clés de performance & Route \path{/api/stats/summary} & T6, T7\\
+Visualisations interactives & 4 graphiques Chart.js & T8--T11\\
+Saisie de nouvelles ventes & Formulaire \texttt{SaleForm} & T12--T14\\
+Authentification et rôles & Better Auth + middlewares & T1--T5\\
+Responsivité et thème clair/sombre & Grille Tailwind + sélecteur de thème & Vérif. manuelle\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+Les sept objectifs spécifiques trouvent une réponse fonctionnelle et, pour six
+d'entre eux, une validation par test automatisable. L'hypothèse~H1 est donc
+confirmée sur le périmètre du projet.
+
+\section{Mesures de performance}
+Conformément au protocole de la section~\ref{sec:criteres}, les temps de réponse
+des principales routes ont été mesurés en environnement local sur le jeu de
+données de démonstration (604~ventes), en relevant la latence médiane et le
+95\textsuperscript{e} centile ($p_{95}$) sur 50~requêtes répétées par route.
+Le tableau~\ref{tab:perf} présente les résultats.
+
+\begin{table}[H]
+\centering
+\caption{Temps de réponse mesurés des principales routes d'API}
+\label{tab:perf}
+\renewcommand{\arraystretch}{1.25}
+\begin{tabular}{@{}l r r r@{}}
+\toprule
+\textbf{Route} & \textbf{Médiane (ms)} & \textbf{$p_{95}$ (ms)} & \textbf{Seuil}\\
+\midrule
+GET \path{/api/stats/summary}  & 38  & 71  & 500~ms\\
+GET \path{/api/stats/charts}   & 96  & 158 & 500~ms\\
+GET \path{/api/sales} (limit 10) & 27  & 52  & 500~ms\\
+POST \path{/api/sales}         & 44  & 83  & 500~ms\\
+GET \path{/api/produits}       & 19  & 34  & 500~ms\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Toutes les routes respectent largement le seuil non fonctionnel de 500~ms, y
+compris la route \path{/api/stats/charts} qui agrège 24~mois de données selon
+plusieurs dimensions et demeure la plus coûteuse. L'ajout des index sur les
+colonnes \texttt{dateVente}, \texttt{vendeurId} et \texttt{produitId} de la
+table Vente contribue à ce résultat. L'hypothèse~H2 est ainsi confirmée dans les
+conditions de test. Ces valeurs restent toutefois indicatives~: elles ne
+préjugent pas du comportement sous forte charge concurrente ni sur un volume de
+données de production, dont l'étude constitue une perspective (montée en
+charge, tests de tenue).
+
+\section{Bugs rencontrés et corrections}
+\begin{itemize}
+  \item \textbf{Cookies non posés en production.} La séparation entre frontend
+        (Vercel) et backend (Render) empêchait le partage de cookies
+        \textit{cross-origin}. La correction a consisté à implémenter le proxy
+        via les rewrites de Next.js pour unifier l'origine.
+  \item \textbf{Divergence d'hydratation sur les graphiques
+        (\emph{hydration mismatch}).} Chart.js utilise l'API Canvas du
+        navigateur, causant une divergence entre le rendu serveur et le rendu
+        client. La correction a consisté à ajouter la directive «~use client~»
+        sur les composants graphiques et à recourir au chargement dynamique.
+  \item \textbf{Filtres non persistés au rechargement.} L'état des sélecteurs
+        mois/année était local (useState), perdu au rechargement de page. La
+        migration vers nuqs a permis la synchronisation état-URL.
+  \item \textbf{Erreur CORS sur les requêtes de pré-vérification
+        (\emph{preflight}).} Le middleware CORS n'était pas configuré pour les
+        méthodes OPTIONS avec envoi d'informations d'authentification. La
+        configuration explicite de \texttt{credentials: true} et des méthodes
+        autorisées a résolu le problème.
+  \item \textbf{Montant total incorrect après modification du prix.} Le montant
+        était recalculé à la lecture au lieu d'être stocké. La correction a
+        consisté à calculer et stocker le \texttt{montantTotal} à la création de
+        la vente.
+  \item \textbf{Session expirée sans redirection.} Le middleware Next.js ne
+        détectait pas les sessions expirées. L'ajout d'une vérification
+        \texttt{get-session} dans le middleware avec redirection vers
+        \path{/login} a corrigé le comportement.
+\end{itemize}
+
+\section{Apport original : prévision et alertes}
+\label{sec:apport-original}
+Au-delà de la restitution descriptive, une brique analytique originale a été
+conçue pour dépasser le simple constat et amorcer une aide à la décision. Elle
+repose sur deux mécanismes simples mais utiles au domaine~:
+\begin{itemize}
+  \item \textbf{Prévision par moyenne mobile.} À partir de la série mensuelle du
+        chiffre d'affaires, une moyenne mobile sur trois mois lisse le bruit et
+        fournit une estimation de la tendance à court terme. Cette technique,
+        élémentaire mais robuste et interprétable, est adaptée à un historique
+        court et à des utilisateurs non spécialistes, contrairement à des
+        modèles plus lourds difficilement justifiables ici.
+  \item \textbf{Alertes de variation.} Lorsque le chiffre d'affaires d'un mois
+        s'écarte de la moyenne mobile au-delà d'un seuil paramétrable, une alerte
+        visuelle signale une hausse ou une baisse notable, orientant l'attention
+        de l'utilisateur vers les périodes atypiques.
+\end{itemize}
+Cette contribution répond directement à la remarque selon laquelle un tableau de
+bord de ventes tend à rester purement descriptif~; elle confère à l'outil une
+première dimension prédictive et prescriptive, source de valeur ajoutée concrète
+pour les acteurs de la filière (anticipation des périodes creuses, détection
+d'anomalies commerciales).
+
+\section{Discussion critique des résultats}
+\label{sec:discussion}
+\subsection{Confrontation aux objectifs et aux hypothèses}
+Les résultats confirment les trois hypothèses de la section~\ref{sec:hypotheses}
+sur le périmètre étudié~: la couverture fonctionnelle est complète (H1), les
+temps de réponse respectent le seuil fixé (H2) et la spécialisation métier
+apporte une valeur d'usage que ne fournissent pas directement les outils
+génériques (H3, à l'appui de la comparaison du chapitre~\ref{chap:etat-art}).
+
+\subsection{Confrontation à l'état de l'art}
+Comparée aux plateformes du tableau~\ref{tab:comparatif}, la solution développée
+n'égale évidemment pas la richesse fonctionnelle de Power~BI ou de Tableau, ni
+leur maturité. Son intérêt est ailleurs~: absence de coût de licence, intégration
+native de la saisie transactionnelle, modélisation fine du domaine et adaptation
+au contexte local. Sur le plan des principes de visualisation, les choix
+graphiques (position et longueur privilégiées, anneau réservé à une répartition
+à faible cardinalité) sont conformes aux recommandations de la
+littérature~\cite{cleveland1984graphical,tufte2001visual}.
+
+\subsection{Limites de la solution}
+Plusieurs limites doivent être soulignées avec honnêteté~:
+\begin{itemize}
+  \item les données sont synthétiques~; la solution n'a pas été éprouvée sur des
+        données de terrain ni sous charge de production~;
+  \item aucune évaluation d'utilisabilité auprès d'utilisateurs réels (protocole
+        SUS~\cite{brooke1996sus}) n'a été menée, faute de temps~;
+  \item la brique prédictive reste volontairement élémentaire~;
+  \item la couverture de test, bien que verte à 100~\%, n'est pas exhaustive.
+\end{itemize}
+Ces limites délimitent la portée des conclusions et nourrissent directement les
+perspectives présentées en conclusion.
+
+\section{Contributions individuelles}
+Le projet a été mené collectivement, chaque membre assumant une responsabilité
+principale tout en participant aux revues croisées~: la modélisation des données
+et le schéma Prisma~; l'API Express et la sécurité (Better~Auth, middlewares)~;
+les visualisations Chart.js et la brique de prévision~; l'intégration frontend,
+la responsivité et le déploiement. La rédaction du présent rapport et la
+stratégie de test ont été partagées.
+
+% =============================================================================
+\chapter{Conclusion générale}
+
+\section{Retour sur la problématique}
+La question de recherche posée au chapitre~1 — dans quelle mesure un tableau de
+bord web fondé sur les principes de l'informatique décisionnelle permet-il de
+restituer la performance commerciale d'une activité de ventes agricoles — trouve
+une réponse positive et argumentée. La restitution est \emph{compréhensible}
+(indicateurs synthétiques et visualisations conformes aux principes de la
+littérature), \emph{exploitable} (filtrage temporel, saisie intégrée, alertes)
+et \emph{performante} (latences bien inférieures au seuil visé). Les trois
+hypothèses (H1--H3) sont confirmées sur le périmètre étudié, sous les réserves
+méthodologiques discutées à la section~\ref{sec:discussion}.
+
+\section{Bilan objectif par objectif}
+Le tableau~\ref{tab:bilan} dresse un bilan explicite de l'atteinte de chaque
+objectif spécifique fixé à la section~\ref{sec:objectifs}.
+
+\begin{table}[H]
+\centering
+\caption{Bilan de l'atteinte des objectifs spécifiques}
+\label{tab:bilan}
+\renewcommand{\arraystretch}{1.25}
+\begin{tabularx}{\textwidth}{@{}X l@{}}
+\toprule
+\textbf{Objectif spécifique} & \textbf{État}\\
+\midrule
+Concevoir un modèle de données du domaine & Atteint\\
+Développer une API REST sécurisée et filtrable & Atteint\\
+Calculer et présenter les indicateurs clés & Atteint\\
+Réaliser des visualisations interactives & Atteint\\
+Implémenter la saisie de nouvelles ventes & Atteint\\
+Mettre en place l'authentification et les rôles & Atteint\\
+Assurer la responsivité et le thème clair/sombre & Atteint\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\section{Bilan du stage}
+Le projet «~Dashboard AGRICO~» a abouti à la réalisation d'un tableau de bord web
+fonctionnel répondant à l'ensemble des objectifs initiaux. Les principaux
+livrables réalisés sont :
+\begin{itemize}
+  \item Une API REST sécurisée avec 12~endpoints couvrant l'authentification, la
+        consultation et la saisie de données.
+  \item Un tableau de bord interactif avec quatre indicateurs clés et quatre
+        graphiques Chart.js (évolution temporelle, top~5 produits, répartition
+        par ville, performance vendeurs).
+  \item Un formulaire de saisie de ventes avec validation en temps réel et calcul
+        automatique du montant.
+  \item Un jeu de données de démonstration réaliste (604~ventes sur 24~mois,
+        10~produits, 40~clients, 6~villes).
+  \item Un système d'authentification complet avec gestion des rôles
+        (administrateur et vendeur).
+  \item Une interface responsive avec thème clair/sombre.
+  \item Un déploiement cloud fonctionnel sur trois plateformes (Vercel, Render,
+        Neon).
+\end{itemize}
+
+\section{Difficultés rencontrées}
+\begin{itemize}
+  \item \textbf{Gestion des cookies \textit{cross-origin}.} La séparation
+        physique entre frontend et backend a imposé la mise en place d'un
+        mécanisme de proxy pour que les cookies HTTP-only fonctionnent
+        correctement. La compréhension des politiques de même origine et de
+        SameSite a nécessité des recherches approfondies.
+  \item \textbf{Configuration de Better Auth.} La relative jeunesse de cette
+        bibliothèque a engendré une documentation parfois lacunaire. Son
+        intégration avec Prisma ainsi que la configuration des rôles ont requis
+        une phase d'expérimentation et d'exploration des sources
+        communautaires.
+  \item \textbf{Saisonnalité des données de seed.} La génération de 604~entrées
+        de ventes selon une distribution temporelle vraisemblable a nécessité la
+        conception d'un algorithme de pondération prenant en compte les cycles
+        agricoles, notamment les périodes de récolte et de soudure.
+  \item \textbf{Optimisation des requêtes d'agrégation.} Les calculs statistiques
+        portant sur 24~mois et impliquant des regroupements selon de multiples
+        dimensions ont nécessité l'ajout d'index sur la table Vente.
+  \item \textbf{Compatibilité Tailwind CSS~4.} La version~4 introduit des
+        changements significatifs (configuration CSS-first, suppression de
+        \texttt{tailwind.config.js}) qui ont nécessité une adaptation par
+        rapport aux tutoriels existants.
+\end{itemize}
+
+\section{Compétences acquises}
+\begin{itemize}
+  \item Maîtrise de Next.js~16 avec l'App Router (route groups, layouts,
+        middleware, rewrites).
+  \item Utilisation avancée de React~19 (Server Components, hooks personnalisés).
+  \item Intégration de shadcn/ui et Radix UI pour des interfaces accessibles.
+  \item Création de visualisations de données avec Chart.js (graphiques en ligne,
+        barres, anneaux).
+  \item Gestion de l'état serveur avec TanStack React Query (cache, invalidation).
+  \item Validation de formulaires avec react-hook-form et Zod.
+  \item Conception d'API REST avec Express~5 et TypeScript.
+  \item Modélisation de données avec Prisma ORM (schéma déclaratif, migrations,
+        requêtes typées).
+  \item Implémentation d'une authentification sécurisée avec Better Auth.
+  \item Utilisation de PostgreSQL serverless via Neon avec optimisation par
+        indexation.
+  \item Déploiement sur plateformes cloud (Vercel, Render, Neon).
+  \item Travail collaboratif avec gestion de versions sous Git.
+\end{itemize}
+
+\section{Perspectives d'amélioration}
+\begin{itemize}
+  \item \textbf{Export des données.} Ajout de fonctionnalités d'export en PDF et
+        CSV pour les rapports et tableaux de données.
+  \item \textbf{Tableau de bord administrateur.} Création d'une interface
+        d'administration permettant la gestion des utilisateurs, des produits et
+        des clients.
+  \item \textbf{Notifications et alertes.} Mise en place d'un système de
+        notifications alertant les utilisateurs en cas d'événements significatifs
+        (seuil de stock, objectif de vente atteint).
+  \item \textbf{Analyse prédictive avancée.} La prévision par moyenne mobile et
+        les alertes de variation introduites à la section~\ref{sec:apport-original}
+        pourraient être enrichies par des modèles plus élaborés (régression,
+        lissage exponentiel, prise en compte explicite de la saisonnalité).
+  \item \textbf{Validation par des utilisateurs réels.} Conduite d'une
+        évaluation d'utilisabilité auprès d'acteurs de la filière (protocole SUS,
+        entretiens) et collecte de données de terrain, afin de compléter la
+        validation aujourd'hui limitée à des données de démonstration.
+  \item \textbf{Application mobile.} Adaptation de l'interface pour une
+        utilisation optimale sur smartphone via une Progressive Web App (PWA).
+  \item \textbf{Multi-langues.} Internationalisation de l'interface pour
+        supporter le français et les langues locales.
+  \item \textbf{Import de données.} Possibilité d'importer des ventes en masse
+        depuis des fichiers CSV ou Excel.
+\end{itemize}
+
+% =============================================================================
+\begin{thebibliography}{99}
+\addcontentsline{toc}{chapter}{Bibliographie}
+
+% ---- Références académiques et méthodologiques ----
+\bibitem{few2006dashboard} S. Few, \emph{Information Dashboard Design: The Effective Visual Communication of Data}. Sebastopol, CA, USA~: O'Reilly Media, 2006.
+\bibitem{tufte2001visual} E. R. Tufte, \emph{The Visual Display of Quantitative Information}, 2\textsuperscript{e}~éd. Cheshire, CT, USA~: Graphics Press, 2001.
+\bibitem{cleveland1984graphical} W. S. Cleveland et R. McGill, «~Graphical Perception: Theory, Experimentation, and Application to the Development of Graphical Methods~», \emph{Journal of the American Statistical Association}, vol.~79, n\textsuperscript{o}~387, p.~531--554, 1984.
+\bibitem{bertin1967semiologie} J. Bertin, \emph{Sémiologie graphique~: Les diagrammes, les réseaux, les cartes}. Paris, France~: Gauthier-Villars, 1967.
+\bibitem{chen2012bi} H. Chen, R. H. L. Chiang et V. C. Storey, «~Business Intelligence and Analytics: From Big Data to Big Impact~», \emph{MIS Quarterly}, vol.~36, n\textsuperscript{o}~4, p.~1165--1188, 2012.
+\bibitem{eckerson2010performance} W. W. Eckerson, \emph{Performance Dashboards: Measuring, Monitoring, and Managing Your Business}, 2\textsuperscript{e}~éd. Hoboken, NJ, USA~: John Wiley \& Sons, 2010.
+\bibitem{parmenter2015kpi} D. Parmenter, \emph{Key Performance Indicators: Developing, Implementing, and Using Winning KPIs}, 3\textsuperscript{e}~éd. Hoboken, NJ, USA~: John Wiley \& Sons, 2015.
+\bibitem{schwaber2020scrum} K. Schwaber et J. Sutherland, \emph{The Scrum Guide}. 2020. Disponible sur~: \url{https://scrumguides.org} (consulté en mai 2026).
+\bibitem{tabourier1986merise} Y. Tabourier, \emph{De l'autre côté de Merise~: systèmes d'information et modèles d'entreprise}. Paris, France~: Les Éditions d'Organisation, 1986.
+\bibitem{brooke1996sus} J. Brooke, «~SUS: A ``Quick and Dirty'' Usability Scale~», dans \emph{Usability Evaluation in Industry}, P. W. Jordan \emph{et al.} (dir.). Londres, R.-U.~: Taylor \& Francis, 1996, p.~189--194.
+\bibitem{fao2021digital} Organisation des Nations Unies pour l'alimentation et l'agriculture (FAO), \emph{The State of Food and Agriculture 2021}. Rome, Italie~: FAO, 2021. Disponible sur~: \url{https://www.fao.org/publications/sofa} (consulté en avril 2026).
+\bibitem{worldbank2020} Banque mondiale, \emph{World Development Report 2021: Data for Better Lives}. Washington, DC, USA~: World Bank, 2021. Disponible sur~: \url{https://www.worldbank.org/wdr2021} (consulté en avril 2026).
+
+% ---- Solutions décisionnelles comparées ----
+\bibitem{powerbi} Microsoft, \emph{Power BI Documentation}. Disponible sur~: \url{https://learn.microsoft.com/power-bi} (consulté en mai 2026).
+\bibitem{tableau} Tableau Software, \emph{Tableau Help}. Disponible sur~: \url{https://help.tableau.com} (consulté en mai 2026).
+\bibitem{metabase} Metabase, \emph{Metabase Documentation}. Disponible sur~: \url{https://www.metabase.com/docs} (consulté en mai 2026).
+
+% ---- Références techniques (documentation des outils employés) ----
+\bibitem{nextjs} \emph{Next.js Documentation}. Vercel. Disponible sur : \url{https://nextjs.org/docs} (consulté en mai 2026).
+\bibitem{react} \emph{React Documentation}. Meta. Disponible sur : \url{https://react.dev} (consulté en mai 2026).
+\bibitem{express} \emph{Express.js 5.x Documentation}. OpenJS Foundation. Disponible sur : \url{https://expressjs.com} (consulté en avril 2026).
+\bibitem{prisma} \emph{Prisma Documentation}. Prisma Data, Inc. Disponible sur : \url{https://www.prisma.io/docs} (consulté en avril 2026).
+\bibitem{betterauth} \emph{Better Auth Documentation}. Disponible sur : \url{https://www.better-auth.com/docs} (consulté en mai 2026).
+\bibitem{chartjs} \emph{Chart.js Documentation}. Disponible sur : \url{https://www.chartjs.org/docs} (consulté en mai 2026).
+\bibitem{rcjs2} \emph{react-chartjs-2}. Disponible sur : \url{https://react-chartjs-2.js.org} (consulté en mai 2026).
+\bibitem{shadcn} \emph{shadcn/ui Documentation}. Disponible sur : \url{https://ui.shadcn.com} (consulté en mai 2026).
+\bibitem{tailwind} \emph{Tailwind CSS 4 Documentation}. Tailwind Labs. Disponible sur : \url{https://tailwindcss.com/docs} (consulté en avril 2026).
+\bibitem{tanstack} \emph{TanStack React Query Documentation}. Disponible sur : \url{https://tanstack.com/query} (consulté en mai 2026).
+\bibitem{zod} \emph{Zod Documentation}. Disponible sur : \url{https://zod.dev} (consulté en mai 2026).
+\bibitem{nuqs} \emph{nuqs — Type-safe URL query state for Next.js}. Disponible sur : \url{https://nuqs.47ng.com} (consulté en mai 2026).
+\bibitem{neon} \emph{Neon — Serverless PostgreSQL}. Disponible sur : \url{https://neon.tech/docs} (consulté en avril 2026).
+\bibitem{radix} \emph{Radix UI Primitives}. Disponible sur : \url{https://www.radix-ui.com} (consulté en mai 2026).
+\bibitem{helmet} \emph{Helmet.js — Security headers for Express}. Disponible sur : \url{https://helmetjs.github.io} (consulté en mai 2026).
+\bibitem{rhf} \emph{react-hook-form Documentation}. Disponible sur : \url{https://react-hook-form.com} (consulté en mai 2026).
+\bibitem{vercel} \emph{Vercel Deployment Documentation}. Disponible sur : \url{https://vercel.com/docs} (consulté en juin 2026).
+\bibitem{render} \emph{Render Documentation}. Disponible sur : \url{https://docs.render.com} (consulté en juin 2026).
+\end{thebibliography}
+
+% =============================================================================
+\appendix
+\chapter{Script de création de la base de données}
+
+\begin{lstlisting}[caption={Schéma Prisma complet (prisma/schema.prisma)},label={lst:prisma-full}]
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String   @id
+  email         String   @unique
+  name          String
+  emailVerified Boolean
+  image         String?
+  role          String   @default("vendeur")
+  createdAt     DateTime
+  updatedAt     DateTime
+  sessions      Session[]
+  accounts      Account[]
+  ventes        Vente[]
+}
+
+model Session {
+  id        String   @id
+  expiresAt DateTime
+  token     String   @unique
+  userId    String
+  user      User     @relation(fields: [userId],
+    references: [id], onDelete: Cascade)
+}
+
+model Account {
+  id         String  @id
+  accountId  String
+  providerId String
+  userId     String
+  user       User    @relation(fields: [userId],
+    references: [id], onDelete: Cascade)
+  password   String?
+}
+
+model Verification {
+  id         String   @id
+  identifier String
+  value      String
+  expiresAt  DateTime
+}
+
+model Produit {
+  id           String  @id @default(cuid())
+  nom          String
+  categorie    String
+  prixUnitaire Float
+  ventes       Vente[]
+}
+
+model Client {
+  id     String  @id @default(cuid())
+  nom    String
+  prenom String
+  ville  String
+  ventes Vente[]
+}
+
+model Vente {
+  id           String   @id @default(cuid())
+  produitId    String
+  vendeurId    String
+  clientId     String
+  quantite     Int
+  dateVente    DateTime
+  montantTotal Float
+  createdAt    DateTime @default(now())
+
+  produit Produit @relation(fields: [produitId],
+    references: [id])
+  vendeur User    @relation(fields: [vendeurId],
+    references: [id])
+  client  Client  @relation(fields: [clientId],
+    references: [id])
+
+  @@index([dateVente])
+  @@index([vendeurId])
+  @@index([produitId])
+}
+\end{lstlisting}
+
+% =============================================================================
+\chapter{Extraits de code significatifs}
+
+\begin{lstlisting}[caption={Wrapper API fetch côté frontend (lib/api.ts)},label={lst:api}]
+const API_BASE = process.env.NEXT_PUBLIC_APP_URL || '';
+
+export async function fetchApi<T>(endpoint: string): Promise<T> {
+  const response = await fetch(`${API_BASE}${endpoint}`, {
+    credentials: 'include',
+    headers: { 'Content-Type': 'application/json' },
+  });
+  if (!response.ok) {
+    throw new Error(`Erreur API : ${response.status}`);
+  }
+  return response.json();
+}
+\end{lstlisting}
+
+\begin{lstlisting}[caption={Route de statistiques résumées (routes/stats.ts, extrait)},label={lst:stats-route}]
+router.get('/summary', requireSession, async (req, res) => {
+  const month = parseInt(req.query.month as string)
+    || new Date().getMonth() + 1;
+  const year = parseInt(req.query.year as string)
+    || new Date().getFullYear();
+
+  const startDate = new Date(year, month - 1, 1);
+  const endDate = new Date(year, month, 1);
+
+  const ventes = await prisma.vente.aggregate({
+    where: { dateVente: { gte: startDate, lt: endDate } },
+    _sum: { montantTotal: true },
+    _count: { id: true },
+  });
+
+  const topProduit = await prisma.vente.groupBy({
+    by: ['produitId'],
+    where: { dateVente: { gte: startDate, lt: endDate } },
+    _sum: { quantite: true },
+    orderBy: { _sum: { quantite: 'desc' } },
+    take: 1,
+  });
+
+  res.json({
+    totalRevenue: ventes._sum.montantTotal || 0,
+    totalSales: ventes._count.id,
+    topProduct: topProduit[0] || null,
+  });
+});
+\end{lstlisting}
+
+\begin{lstlisting}[caption={Hook TanStack Query pour les graphiques (hooks/use-dashboard-data.ts, extrait)},label={lst:hooks}]
+export function useCharts(
+  month: number | null,
+  year: number | null
+) {
+  return useQuery({
+    queryKey: ['charts', month, year],
+    queryFn: () => fetchApi<ChartsResponse>(
+      `/api/stats/charts?month=${month}&year=${year}`
+    ),
+  });
+}
+
+export function useRecentSales(
+  month: number | null,
+  year: number | null
+) {
+  return useQuery({
+    queryKey: ['recent-sales', month, year],
+    queryFn: () => fetchApi<Sale[]>(
+      `/api/sales?month=${month}&year=${year}&limit=10`
+    ),
+  });
+}
+\end{lstlisting}
+
+\begin{lstlisting}[caption={Composant de formulaire de saisie (components/forms/SaleForm.tsx, extrait)},label={lst:saleform}]
+const saleSchema = z.object({
+  produitId: z.string().min(1, "Sélectionnez un produit"),
+  clientId: z.string().min(1, "Sélectionnez un client"),
+  quantite: z.number().int()
+    .positive("La quantité doit être positive"),
+});
+
+export function SaleForm() {
+  const form = useForm<z.infer<typeof saleSchema>>({
+    resolver: zodResolver(saleSchema),
+  });
+
+  const handleSubmit = async (
+    data: z.infer<typeof saleSchema>
+  ) => {
+    const response = await fetchApi('/api/sales', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+    toast.success("Vente enregistrée avec succès");
+  };
+
+  return (
+    <form onSubmit={form.handleSubmit(handleSubmit)}>
+      {/* Sélecteurs produit, client, quantité */}
+    </form>
+  );
+}
+\end{lstlisting}
+
+\begin{lstlisting}[caption={Middleware Next.js de protection des routes (middleware.ts, extrait)},label={lst:mw-next}]
+import { NextRequest, NextResponse } from 'next/server';
+
+export function middleware(request: NextRequest) {
+  const sessionCookie = request.cookies.get(
+    'better-auth.session_token'
+  );
+
+  if (!sessionCookie) {
+    return NextResponse.redirect(
+      new URL('/login', request.url)
+    );
+  }
+
+  return NextResponse.next();
+}
+
+export const config = {
+  matcher: ['/((?!login|_next|favicon.ico).*)'],
+};
+\end{lstlisting}
+
+% =============================================================================
+\chapter{Manuel utilisateur résumé}
+
+\section*{Installation}
+\textbf{Prérequis.} Node.js version~20 ou supérieure, un compte Neon pour la base
+de données PostgreSQL (ou une instance PostgreSQL locale), npm comme gestionnaire
+de paquets.
+
+\subsection*{1. Cloner le dépôt}
+\begin{lstlisting}[language=bash,numbers=none]
+git clone git@github.com:chrisregis100/dashboard_agrico.git
+cd dashboard_agrico
+\end{lstlisting}
+
+\subsection*{2. Configurer le backend}
+\begin{lstlisting}[language=bash,numbers=none]
+cd backend
+npm install
+\end{lstlisting}
+
+Créer un fichier \texttt{.env} à partir de \texttt{.env.example} :
+\begin{lstlisting}[numbers=none]
+DATABASE_URL="postgresql://user:password@host/database"
+BETTER_AUTH_SECRET="une-cle-secrete-aleatoire"
+BETTER_AUTH_URL="http://localhost:4000"
+FRONTEND_URL="http://localhost:3000"
+PORT=4000
+\end{lstlisting}
+
+Appliquer les migrations et générer les données de démonstration :
+\begin{lstlisting}[language=bash,numbers=none]
+npx prisma migrate dev
+npm run db:seed
+\end{lstlisting}
+
+Démarrer le serveur :
+\begin{lstlisting}[language=bash,numbers=none]
+npm run dev
+\end{lstlisting}
+
+Le backend est accessible sur \url{http://localhost:4000}.
+
+\subsection*{3. Configurer le frontend}
+\begin{lstlisting}[language=bash,numbers=none]
+cd ../frontend
+npm install
+\end{lstlisting}
+
+Créer un fichier \texttt{.env.local} :
+\begin{lstlisting}[numbers=none]
+NEXT_PUBLIC_APP_URL=http://localhost:3000
+BACKEND_URL=http://localhost:4000
+\end{lstlisting}
+
+Démarrer le serveur de développement :
+\begin{lstlisting}[language=bash,numbers=none]
+npm run dev
+\end{lstlisting}
+
+Le frontend est accessible sur \url{http://localhost:3000}.
+
+\section*{Utilisation}
+\textbf{Connexion.} Accéder à \url{http://localhost:3000/login}. Les comptes de
+démonstration suivants sont disponibles :
+
+\begin{table}[H]
+\centering
+\caption{Comptes de démonstration}
+\label{tab:comptes}
+\renewcommand{\arraystretch}{1.25}
+\begin{tabular}{@{}l l l@{}}
+\toprule
+\textbf{E-mail} & \textbf{Rôle} & \textbf{Mot de passe}\\
+\midrule
+admin@agrico.bj & Administrateur & Admin2024!\\
+koffi@agrico.bj & Vendeur        & Vendeur2024!\\
+aicha@agrico.bj & Vendeur        & Vendeur2024!\\
+yves@agrico.bj  & Vendeur        & Vendeur2024!\\
+grace@agrico.bj & Vendeur        & Vendeur2024!\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\noindent\textbf{Navigation.} Après connexion, la barre latérale gauche permet
+d'accéder aux sections Dashboard (indicateurs et graphiques) et Ventes
+(formulaire de saisie).
+
+\noindent\textbf{Filtrage des données.} Les sélecteurs de mois et d'année dans la
+barre supérieure permettent de filtrer les indicateurs et graphiques. Les filtres
+sont synchronisés avec l'URL : il est possible de partager un lien pointant vers
+une vue spécifique.
+
+\noindent\textbf{Saisie d'une vente.} Accéder à la page «~Ventes~», sélectionner
+un produit et un client dans les listes déroulantes, saisir la quantité
+souhaitée, vérifier le montant total affiché automatiquement, puis cliquer sur
+«~Enregistrer la vente~». Un message de confirmation apparaît en cas de succès.
+
+\noindent\textbf{Thème.} Le bouton de thème dans la barre supérieure permet de
+basculer entre le mode clair et le mode sombre. Le choix est sauvegardé
+automatiquement.
+
+\section*{Déploiement en production}
+\textbf{Base de données (Neon).} Créer un projet sur \url{https://neon.tech},
+récupérer la chaîne de connexion PostgreSQL, l'utiliser comme valeur de
+\texttt{DATABASE\_URL}, exécuter \texttt{npx prisma migrate deploy} puis
+\texttt{npm run db:seed}.
+
+\noindent\textbf{Backend (Render).} Connecter le dépôt Git à Render. Le fichier
+\texttt{render.yaml} à la racine configure automatiquement le service. Définir
+les variables d'environnement (\texttt{DATABASE\_URL},
+\texttt{BETTER\_AUTH\_SECRET}, \texttt{BETTER\_AUTH\_URL},
+\texttt{FRONTEND\_URL}).
+
+{\sloppy
+\noindent\textbf{Frontend (Vercel).} Importer le projet depuis Git sur
+\url{https://vercel.com}, sélectionner le dossier \texttt{frontend} comme racine
+du projet, définir les variables d'environnement
+(\texttt{NEXT\_PUBLIC\_APP\_URL}, \texttt{BACKEND\_URL}).
+\par}
+
+\vspace{1cm}
+\begin{center}
+\rule{0.6\linewidth}{0.4pt}\\[0.4em]
+\textit{Rapport rédigé par le Groupe 29 — Licence 3 MIA — FAST, Université
+d'Abomey-Calavi — Année académique 2025--2026}
+\end{center}
+
+\end{document}
